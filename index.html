@@ -1,0 +1,2063 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hilbert Capital Analysis Tool</title>
+    <!-- Single-file app: CSS and app code are embedded. D3 and Plot load from the CDN. -->
+    <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-alt: #eef4f8;
+  --ink: #1c2430;
+  --muted: #667386;
+  --line: #d8e0e8;
+  --line-strong: #b8c5d1;
+  --blue: #2f6fae;
+  --teal: #168374;
+  --red: #c44d58;
+  --amber: #b9761d;
+  --green: #437f4f;
+  --shadow: 0 12px 30px rgba(34, 49, 66, 0.08);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  min-height: 34px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+button:disabled {
+  cursor: wait;
+  color: var(--muted);
+  border-color: var(--line);
+  background: #f2f5f7;
+}
+
+.primary-action {
+  width: 100%;
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.primary-action:hover {
+  background: #245d94;
+  color: #ffffff;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 auto 16px;
+  max-width: 1720px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+h2 {
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.status-text {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(82px, 1fr));
+  gap: 8px;
+  min-width: min(420px, 100%);
+}
+
+.summary-strip div {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 9px 12px;
+  box-shadow: var(--shadow);
+}
+
+.summary-strip span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summary-strip strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  max-width: 1720px;
+  margin: 0 auto;
+}
+
+.control-rail {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 16px;
+}
+
+.control-block,
+.chart-panel,
+.table-wrap {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.control-block {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.block-title {
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.86rem;
+}
+
+label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 6px 8px;
+}
+
+input[type="range"] {
+  min-height: 28px;
+  padding: 0;
+  accent-color: var(--blue);
+}
+
+input[type="file"] {
+  min-height: 38px;
+  padding: 7px;
+}
+
+progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--teal);
+}
+
+output {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 6px;
+  background: var(--surface-alt);
+  color: var(--ink);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.split-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.inline-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.segment {
+  border: 0;
+  border-radius: 0;
+  border-right: 1px solid var(--line-strong);
+  min-height: 32px;
+  padding: 0 8px;
+}
+
+.segment:last-child {
+  border-right: 0;
+}
+
+.segment.is-active {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.source-pane {
+  display: none;
+  gap: 10px;
+}
+
+.source-pane.is-active {
+  display: grid;
+}
+
+.radio-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.radio-row label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 8px;
+  color: var(--ink);
+  background: #fbfcfd;
+}
+
+.radio-row input {
+  width: auto;
+  min-height: 0;
+  accent-color: var(--blue);
+}
+
+.analysis-area {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.metrics-band {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 14px;
+}
+
+.table-wrap {
+  min-width: 0;
+  padding: 12px;
+}
+
+.table-wrap h2 {
+  margin-bottom: 10px;
+}
+
+.table-scroll {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  min-width: 620px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 7px 8px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+th:first-child,
+td:first-child,
+td.vector-cell {
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 800;
+  background: #fbfcfd;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.chart-panel {
+  min-width: 0;
+  padding: 12px;
+}
+
+.chart-panel h2 {
+  margin-bottom: 8px;
+}
+
+.chart-wide {
+  grid-column: 1 / -1;
+}
+
+.plot-host {
+  min-height: 340px;
+  overflow: hidden;
+}
+
+.square-host {
+  min-height: 520px;
+}
+
+.mini-grid,
+.slice-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.mini-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.slice-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mini-chart {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 0;
+  padding: 8px;
+  background: #fbfcfd;
+}
+
+.mini-chart h3 {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.plot-host svg,
+.mini-chart svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.geometry-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.axis-label {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.vector-label {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-right: 12px;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.error-text {
+  border: 1px solid #e5b9bf;
+  border-radius: 6px;
+  background: #fff6f7;
+  color: #8a2631;
+  padding: 10px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1180px) {
+  .workspace,
+  .metrics-band,
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-rail {
+    position: static;
+  }
+
+  .chart-wide {
+    grid-column: auto;
+  }
+
+  .slice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 10px;
+  }
+
+  .topbar {
+    display: grid;
+  }
+
+  .summary-strip,
+  .split-inputs,
+  .mini-grid,
+  .slice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-rail,
+  .analysis-area,
+  .chart-grid,
+  .metrics-band {
+    gap: 10px;
+  }
+
+  .plot-host {
+    min-height: 300px;
+  }
+
+  .square-host {
+    min-height: 390px;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Hilbert Capital Analysis Tool</h1>
+          <p id="statusText" class="status-text">Initializing sample data...</p>
+        </div>
+        <div class="summary-strip" aria-live="polite">
+          <div>
+            <span>Ticks</span>
+            <strong id="tickCount">0</strong>
+          </div>
+          <div>
+            <span>TPY</span>
+            <strong id="tpyValue">8760</strong>
+          </div>
+          <div>
+            <span>Mode</span>
+            <strong id="sourceMode">Sample</strong>
+          </div>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="control-rail" aria-label="Analysis controls">
+          <section class="control-block">
+            <div class="block-title">Data Source</div>
+            <div class="segmented" role="tablist" aria-label="Data source">
+              <button class="segment is-active" type="button" data-source-tab="binance">Binance</button>
+              <button class="segment" type="button" data-source-tab="csv">CSV</button>
+              <button class="segment" type="button" data-source-tab="sample">Sample</button>
+            </div>
+
+            <div class="source-pane is-active" data-source-pane="binance">
+              <label>Numraire <input id="numraireInput" type="text" value="USDT" autocomplete="off"></label>
+              <div class="split-inputs">
+                <label>Asset 1 <input id="asset1Input" type="text" value="BTC" autocomplete="off"></label>
+                <label>Asset 2 <input id="asset2Input" type="text" value="ETH" autocomplete="off"></label>
+              </div>
+              <div class="split-inputs">
+                <label>Start <input id="startDateInput" type="text" value="2021-01-01" autocomplete="off"></label>
+                <label>End <input id="endDateInput" type="text" value="Now" autocomplete="off"></label>
+              </div>
+              <label>Interval
+                <select id="intervalInput">
+                  <option value="1h" selected>1h</option>
+                  <option value="4h">4h</option>
+                  <option value="1d">1d</option>
+                </select>
+              </label>
+              <button id="loadBinanceButton" class="primary-action" type="button">Load Data</button>
+              <progress id="loadProgress" value="0" max="1"></progress>
+            </div>
+
+            <div class="source-pane" data-source-pane="csv">
+              <label>CSV 1 <input id="csv1Input" type="file" accept=".csv,text/csv"></label>
+              <label>CSV 2 <input id="csv2Input" type="file" accept=".csv,text/csv"></label>
+              <div class="split-inputs">
+                <label>Start <input id="csvStartInput" type="text" value="2021-01-01" autocomplete="off"></label>
+                <label>End <input id="csvEndInput" type="text" value="Now" autocomplete="off"></label>
+              </div>
+              <button id="loadCsvButton" class="primary-action" type="button">Load Yahoo</button>
+            </div>
+
+            <div class="source-pane" data-source-pane="sample">
+              <label>Sample Ticks <input id="sampleSizeInput" type="number" value="26280" min="100" step="100"></label>
+              <div class="split-inputs">
+                <label>mu 1 <input id="sampleMu1Input" type="number" value="0.1" step="0.01"></label>
+                <label>sigma 1 <input id="sampleSigma1Input" type="number" value="0.4" step="0.01" min="0.001"></label>
+              </div>
+              <label>rho 1,2 <input id="sampleRhoInput" type="number" value="0.5" step="0.01" min="-0.99" max="0.99"></label>
+              <div class="split-inputs">
+                <label>mu 2 <input id="sampleMu2Input" type="number" value="0.1" step="0.01"></label>
+                <label>sigma 2 <input id="sampleSigma2Input" type="number" value="0.4" step="0.01" min="0.001"></label>
+              </div>
+              <div class="radio-row" role="radiogroup" aria-label="Sample type">
+                <label><input name="sampleType" type="radio" value="adjusted" checked>mu-Adjusted</label>
+                <label><input name="sampleType" type="radio" value="raw">Raw Sample</label>
+              </div>
+              <button id="sampleButton" class="primary-action" type="button">Sample</button>
+            </div>
+          </section>
+
+          <section class="control-block">
+            <div class="block-title">Portfolio Choice</div>
+            <label>Preconfigured
+              <select id="portfolioCaseInput">
+                <option value="wstar">w*</option>
+                <option value="v1">v1</option>
+                <option value="v2">v2</option>
+                <option value="v1perp">v1 | 2</option>
+                <option value="v2perp">v2 | 1</option>
+              </select>
+            </label>
+            <label>Portfolio Risk (k)
+              <input id="riskSlider" type="range" min="0" max="2" step="0.05" value="0.5">
+            </label>
+            <output id="riskOutput" for="riskSlider">0.50</output>
+            <div class="split-inputs">
+              <label>w1 <input id="customW1Input" type="number" value="0.5" step="0.01"></label>
+              <label>w2 <input id="customW2Input" type="number" value="0.5" step="0.01"></label>
+            </div>
+            <button id="updatePortfolioButton" type="button">Update</button>
+          </section>
+
+          <section class="control-block">
+            <div class="block-title">Draw-Down Risk</div>
+            <div class="inline-action">
+              <label>Ticks <input id="ddTicksInput" type="number" value="48" min="2" step="1"></label>
+              <button id="updateDrawdownButton" type="button">Update</button>
+            </div>
+          </section>
+
+          <section class="control-block">
+            <div class="block-title">View</div>
+            <label>Chart Type
+              <select id="chartTypeInput">
+                <option value="log" selected>Log</option>
+                <option value="linear">Linear</option>
+              </select>
+            </label>
+            <label>Plot Type
+              <select id="plotTypeInput">
+                <option value="orthogonal" selected>Orthogonal</option>
+                <option value="asset">Asset Axis</option>
+              </select>
+            </label>
+          </section>
+        </aside>
+
+        <section class="analysis-area">
+          <section class="metrics-band">
+            <div class="table-wrap">
+              <h2>Assets</h2>
+              <div id="assetTable"></div>
+            </div>
+            <div class="table-wrap">
+              <h2>Portfolios</h2>
+              <div id="portfolioTable"></div>
+            </div>
+          </section>
+
+          <section class="chart-grid">
+            <article class="chart-panel chart-wide">
+              <h2>Cumulative Returns</h2>
+              <div id="cumulativeChart" class="plot-host"></div>
+            </article>
+
+            <article class="chart-panel">
+              <h2>Kelly Jensen Geometry</h2>
+              <div id="kellyJensenPlot" class="plot-host square-host"></div>
+            </article>
+
+            <article class="chart-panel">
+              <h2>Draw-Down Risk</h2>
+              <div id="drawdownGrid" class="mini-grid"></div>
+            </article>
+
+            <article class="chart-panel chart-wide">
+              <h2>Logarithmic Returns - mu0(k)</h2>
+              <div id="kellyVsPortfolio" class="plot-host"></div>
+            </article>
+
+            <article class="chart-panel chart-wide">
+              <h2>Portfolio Growth Slices</h2>
+              <div id="sliceGrid" class="slice-grid"></div>
+            </article>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <script type="module">
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.17/+esm";
+
+const COLORS = {
+  asset1: "#2f6fae",
+  asset2: "#168374",
+  wstar: "#b9761d",
+  portfolio: "#c44d58",
+  v1perp: "#6b6f9c",
+  v2perp: "#8a6d3b",
+  model: "#7b8794",
+  grid: "#d8e0e8",
+  text: "#1c2430",
+  muted: "#667386"
+};
+
+const INTERVAL_MS = {
+  "1m": 60_000,
+  "3m": 180_000,
+  "5m": 300_000,
+  "15m": 900_000,
+  "30m": 1_800_000,
+  "1h": 3_600_000,
+  "2h": 7_200_000,
+  "4h": 14_400_000,
+  "6h": 21_600_000,
+  "8h": 28_800_000,
+  "12h": 43_200_000,
+  "1d": 86_400_000,
+  "3d": 259_200_000,
+  "1w": 604_800_000
+};
+
+const state = {
+  source: "Sample",
+  tpy: 8760,
+  asset1: "Asset 1",
+  asset2: "Asset 2",
+  chartType: "log",
+  plotType: "orthogonal",
+  sampleSeed: 9122022,
+  kf: 0.5,
+  pCase: "wstar",
+  ddticks: 48,
+  lrs: [[], []],
+  llrs: [[], []],
+  hlrs: [[], []],
+  bdata: null,
+  cov: [[1, 0], [0, 1]],
+  wstar: [0, 0],
+  v1: [1, 0],
+  v2: [0, 1],
+  v1perp: [1, 0],
+  v2perp: [0, 1],
+  vphat: [1, 1],
+  vp: [0.5, 0.5],
+  psr: [],
+  plr: [],
+  sigma1: 0,
+  sigma2: 0,
+  rho12: 0,
+  beta12: 0,
+  beta21: 0
+};
+
+const el = {
+  statusText: byId("statusText"),
+  tickCount: byId("tickCount"),
+  tpyValue: byId("tpyValue"),
+  sourceMode: byId("sourceMode"),
+  numraireInput: byId("numraireInput"),
+  asset1Input: byId("asset1Input"),
+  asset2Input: byId("asset2Input"),
+  startDateInput: byId("startDateInput"),
+  endDateInput: byId("endDateInput"),
+  intervalInput: byId("intervalInput"),
+  loadBinanceButton: byId("loadBinanceButton"),
+  loadProgress: byId("loadProgress"),
+  csv1Input: byId("csv1Input"),
+  csv2Input: byId("csv2Input"),
+  csvStartInput: byId("csvStartInput"),
+  csvEndInput: byId("csvEndInput"),
+  loadCsvButton: byId("loadCsvButton"),
+  sampleSizeInput: byId("sampleSizeInput"),
+  sampleMu1Input: byId("sampleMu1Input"),
+  sampleMu2Input: byId("sampleMu2Input"),
+  sampleSigma1Input: byId("sampleSigma1Input"),
+  sampleSigma2Input: byId("sampleSigma2Input"),
+  sampleRhoInput: byId("sampleRhoInput"),
+  sampleButton: byId("sampleButton"),
+  portfolioCaseInput: byId("portfolioCaseInput"),
+  riskSlider: byId("riskSlider"),
+  riskOutput: byId("riskOutput"),
+  customW1Input: byId("customW1Input"),
+  customW2Input: byId("customW2Input"),
+  updatePortfolioButton: byId("updatePortfolioButton"),
+  ddTicksInput: byId("ddTicksInput"),
+  updateDrawdownButton: byId("updateDrawdownButton"),
+  chartTypeInput: byId("chartTypeInput"),
+  plotTypeInput: byId("plotTypeInput"),
+  assetTable: byId("assetTable"),
+  portfolioTable: byId("portfolioTable"),
+  cumulativeChart: byId("cumulativeChart"),
+  kellyJensenPlot: byId("kellyJensenPlot"),
+  drawdownGrid: byId("drawdownGrid"),
+  kellyVsPortfolio: byId("kellyVsPortfolio"),
+  sliceGrid: byId("sliceGrid")
+};
+
+bindEvents();
+generateSample(true);
+
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function bindEvents() {
+  document.querySelectorAll("[data-source-tab]").forEach((button) => {
+    button.addEventListener("click", () => switchSourceTab(button.dataset.sourceTab));
+  });
+
+  el.loadBinanceButton.addEventListener("click", loadBinanceData);
+  el.loadCsvButton.addEventListener("click", loadCsvData);
+  el.sampleButton.addEventListener("click", () => generateSample(false));
+
+  el.portfolioCaseInput.addEventListener("change", () => {
+    state.pCase = el.portfolioCaseInput.value;
+    setPortfolioFromCase(state.pCase);
+    renderAll();
+  });
+
+  el.riskSlider.addEventListener("input", () => {
+    state.kf = readNumber(el.riskSlider, state.kf);
+    state.vp = scaleVec(state.vphat, state.kf);
+    syncPortfolioControls();
+    renderAll();
+  });
+
+  el.updatePortfolioButton.addEventListener("click", () => {
+    const w1 = readNumber(el.customW1Input, state.vp[0]);
+    const w2 = readNumber(el.customW2Input, state.vp[1]);
+    state.vp = [w1, w2];
+    updateKFromPortfolio();
+    syncPortfolioControls();
+    renderAll();
+  });
+
+  el.updateDrawdownButton.addEventListener("click", () => {
+    state.ddticks = Math.max(2, Math.round(readNumber(el.ddTicksInput, state.ddticks)));
+    el.ddTicksInput.value = state.ddticks;
+    renderAll();
+  });
+
+  el.chartTypeInput.addEventListener("change", () => {
+    state.chartType = el.chartTypeInput.value;
+    renderCumulativeChart();
+  });
+
+  el.plotTypeInput.addEventListener("change", () => {
+    state.plotType = el.plotTypeInput.value;
+    renderKellyJensenPlot();
+  });
+
+  window.addEventListener("resize", debounce(renderAll, 180));
+}
+
+function switchSourceTab(name) {
+  document.querySelectorAll("[data-source-tab]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.sourceTab === name);
+  });
+  document.querySelectorAll("[data-source-pane]").forEach((pane) => {
+    pane.classList.toggle("is-active", pane.dataset.sourcePane === name);
+  });
+}
+
+async function loadBinanceData() {
+  setBusy(true);
+  el.loadProgress.value = 0;
+  try {
+    const asset1 = el.asset1Input.value.trim().toUpperCase() || "BTC";
+    const asset2 = el.asset2Input.value.trim().toUpperCase() || "ETH";
+    const numraire = el.numraireInput.value.trim().toUpperCase() || "USDT";
+    const interval = el.intervalInput.value;
+    const start = parseAppDate(el.startDateInput.value, false);
+    const end = parseAppDate(el.endDateInput.value, true);
+    const symbol1 = `${asset1}${numraire}`;
+    const symbol2 = `${asset2}${numraire}`;
+
+    setStatus(`Loading ${symbol1} and ${symbol2} candles...`);
+    const candles1 = await fetchBinanceCandles(symbol1, start, end, interval, (p) => {
+      el.loadProgress.value = p * 0.5;
+    });
+    const candles2 = await fetchBinanceCandles(symbol2, start, end, interval, (p) => {
+      el.loadProgress.value = 0.5 + p * 0.5;
+    });
+
+    const returns = returnsFromCandles(candles1, candles2);
+    applyReturnSet({
+      ...returns,
+      asset1,
+      asset2,
+      source: "Binance",
+      tpy: interval === "1d" ? 365 : 8760
+    });
+    setStatus(`Loaded ${formatInt(state.lrs[0].length)} matched return ticks from Binance.`);
+  } catch (error) {
+    showError(error);
+  } finally {
+    el.loadProgress.value = 1;
+    setBusy(false);
+  }
+}
+
+async function loadCsvData() {
+  const file1 = el.csv1Input.files[0];
+  const file2 = el.csv2Input.files[0];
+  if (!file1 || !file2) {
+    showError(new Error("Choose two Yahoo-style CSV files first."));
+    return;
+  }
+
+  setBusy(true);
+  try {
+    setStatus("Reading CSV files...");
+    const [text1, text2] = await Promise.all([file1.text(), file2.text()]);
+    const start = parseAppDate(el.csvStartInput.value, false);
+    const end = parseAppDate(el.csvEndInput.value, true);
+    const returns = returnsFromYahooCsv(text1, text2, start, end);
+    applyReturnSet({
+      ...returns,
+      asset1: stripExtension(file1.name),
+      asset2: stripExtension(file2.name),
+      source: "CSV",
+      tpy: 252
+    });
+    setStatus(`Loaded ${formatInt(state.lrs[0].length)} matched daily return ticks from CSV.`);
+  } catch (error) {
+    showError(error);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function generateSample(initial) {
+  try {
+    const size = Math.max(100, Math.round(readNumber(el.sampleSizeInput, 26280)));
+    const mu1 = readNumber(el.sampleMu1Input, 0.1);
+    const mu2 = readNumber(el.sampleMu2Input, 0.1);
+    const sigma1 = Math.max(0.001, readNumber(el.sampleSigma1Input, 0.4));
+    const sigma2 = Math.max(0.001, readNumber(el.sampleSigma2Input, 0.4));
+    const rho = clamp(readNumber(el.sampleRhoInput, 0.5), -0.99, 0.99);
+    const adjusted = document.querySelector("input[name='sampleType']:checked")?.value !== "raw";
+    const rng = mulberry32(initial ? state.sampleSeed : ++state.sampleSeed);
+    const lrs = [new Array(size), new Array(size)];
+    const root = Math.sqrt(1 - rho * rho);
+
+    for (let i = 0; i < size; i += 1) {
+      const z1 = normalRandom(rng);
+      const z2 = normalRandom(rng);
+      lrs[0][i] = mu1 / 8760 + (sigma1 / Math.sqrt(8760)) * z1;
+      lrs[1][i] = mu2 / 8760 + (sigma2 / Math.sqrt(8760)) * (rho * z1 + root * z2);
+    }
+
+    if (adjusted) {
+      recenter(lrs[0], mu1 / 8760);
+      recenter(lrs[1], mu2 / 8760);
+    }
+
+    applyReturnSet({
+      lrs,
+      llrs: lrs,
+      hlrs: lrs,
+      asset1: "Sample 1",
+      asset2: "Sample 2",
+      source: "Sample",
+      tpy: 8760
+    });
+    setStatus(`${initial ? "Initialized" : "Generated"} ${formatInt(size)} synthetic return ticks.`);
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function applyReturnSet({ lrs, llrs, hlrs, asset1, asset2, source, tpy }) {
+  const trimmed = trimSeriesPair(lrs[0], lrs[1]);
+  const lowTrimmed = trimSeriesPair((llrs || lrs)[0], (llrs || lrs)[1], trimmed[0].length);
+  const highTrimmed = trimSeriesPair((hlrs || lrs)[0], (hlrs || lrs)[1], trimmed[0].length);
+  const bdata = calcReturnData(trimmed, lowTrimmed, highTrimmed, tpy);
+
+  state.source = source;
+  state.tpy = tpy;
+  state.asset1 = asset1;
+  state.asset2 = asset2;
+  state.bdata = bdata;
+  state.lrs = bdata.lrs;
+  state.llrs = bdata.llrs;
+  state.hlrs = bdata.hlrs;
+  state.cov = bdata.cov;
+  state.wstar = bdata.wstar;
+  state.sigma1 = bdata.stds[0];
+  state.sigma2 = bdata.stds[1];
+  state.rho12 = safeNumber(bdata.corr[0][1]);
+  state.beta12 = safeDivide(state.cov[0][1], state.cov[1][1]);
+  state.beta21 = safeDivide(state.cov[1][0], state.cov[0][0]);
+  state.v1 = [1, 0];
+  state.v2 = [0, 1];
+  state.v1perp = subVec(state.v1, scaleVec(state.v2, state.beta12));
+  state.v2perp = subVec(state.v2, scaleVec(state.v1, state.beta21));
+  state.pCase = "wstar";
+  state.vphat = state.wstar;
+  state.vp = scaleVec(state.vphat, state.kf);
+  state.psr = portfolioLogReturns(state.lrs, state.wstar, 0, state.tpy);
+  state.plr = portfolioLogReturns(state.lrs, state.vp, 0, state.tpy);
+
+  el.portfolioCaseInput.value = state.pCase;
+  syncPortfolioControls();
+  renderAll();
+}
+
+function calcReturnData(lrs, llrs, hlrs, tpy) {
+  const cleanLrs = trimSeriesPair(cleanSeries(lrs[0]), cleanSeries(lrs[1]));
+  const cleanLlrs = trimSeriesPair(cleanSeries(llrs[0]), cleanSeries(llrs[1]), cleanLrs[0].length);
+  const cleanHlrs = trimSeriesPair(cleanSeries(hlrs[0]), cleanSeries(hlrs[1]), cleanLrs[0].length);
+  if (cleanLrs[0].length < 3) {
+    throw new Error("Not enough matched return rows to calculate portfolio statistics.");
+  }
+
+  const mus = cleanLrs.map((series) => tpy * mean(series));
+  const stds = cleanLrs.map((series) => Math.sqrt(tpy) * standardDeviation(series));
+  const rawCov = covariance2(cleanLrs[0], cleanLrs[1]);
+  const cov = rawCov.map((row) => row.map((value) => value * tpy));
+  const corr = correlation2(cleanLrs[0], cleanLrs[1]);
+  const inv = inverse2(cov);
+  const kellyTarget = [mus[0] + 0.5 * stds[0] ** 2, mus[1] + 0.5 * stds[1] ** 2];
+  const wstar = matVec(inv, kellyTarget);
+
+  return {
+    lrs: cleanLrs,
+    llrs: cleanLlrs,
+    hlrs: cleanHlrs,
+    totalReturns: cleanLrs.map((series) => Math.exp(sum(series)) - 1),
+    mus,
+    stds,
+    skew: cleanLrs.map(skewness),
+    kurt: cleanLrs.map(kurtosis),
+    corr,
+    avgRhos: corr.map((row) => (sum(row) - 1) / row.length),
+    cov,
+    wstar
+  };
+}
+
+async function fetchBinanceCandles(symbol, start, end, interval, onProgress) {
+  const intervalMs = INTERVAL_MS[interval] || INTERVAL_MS["1h"];
+  let cursor = start.getTime();
+  const endMs = end.getTime();
+  const rows = [];
+  let guard = 0;
+
+  while (cursor < endMs && guard < 500) {
+    guard += 1;
+    const url = new URL("https://api.binance.com/api/v3/klines");
+    url.searchParams.set("symbol", symbol);
+    url.searchParams.set("interval", interval);
+    url.searchParams.set("startTime", String(cursor));
+    url.searchParams.set("endTime", String(endMs));
+    url.searchParams.set("limit", "1000");
+
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error(`Binance returned ${response.status} for ${symbol}.`);
+    }
+
+    const chunk = await response.json();
+    if (!Array.isArray(chunk) || chunk.length === 0) break;
+    rows.push(...chunk.map((row) => [
+      Number(row[0]),
+      Number(row[1]),
+      Number(row[2]),
+      Number(row[3]),
+      Number(row[4])
+    ]));
+
+    const lastOpenTime = Number(chunk[chunk.length - 1][0]);
+    const next = lastOpenTime + intervalMs;
+    if (next <= cursor) break;
+    cursor = next;
+    onProgress?.(clamp((cursor - start.getTime()) / (endMs - start.getTime()), 0, 1));
+  }
+
+  if (rows.length < 3) {
+    throw new Error(`No usable candle data found for ${symbol}.`);
+  }
+
+  const byTime = new Map(rows.map((row) => [row[0], row]));
+  return [...byTime.values()].sort((a, b) => a[0] - b[0]);
+}
+
+function returnsFromCandles(candles1, candles2) {
+  const m1 = new Map(candles1.map((row) => [row[0], row]));
+  const commonTimes = candles2
+    .map((row) => row[0])
+    .filter((time) => m1.has(time))
+    .sort((a, b) => a - b);
+
+  const a = commonTimes.map((time) => m1.get(time));
+  const m2 = new Map(candles2.map((row) => [row[0], row]));
+  const b = commonTimes.map((time) => m2.get(time));
+  const lrs = [[], []];
+  const llrs = [[], []];
+  const hlrs = [[], []];
+
+  for (let i = 1; i < a.length; i += 1) {
+    appendCandleReturns(lrs, llrs, hlrs, 0, a[i - 1], a[i]);
+    appendCandleReturns(lrs, llrs, hlrs, 1, b[i - 1], b[i]);
+  }
+
+  return { lrs, llrs, hlrs };
+}
+
+function appendCandleReturns(lrs, llrs, hlrs, assetIndex, previous, current) {
+  const previousClose = previous[4];
+  lrs[assetIndex].push(Math.log(current[4] / previousClose));
+  llrs[assetIndex].push(Math.log(current[3] / previousClose));
+  hlrs[assetIndex].push(Math.log(current[2] / previousClose));
+}
+
+function returnsFromYahooCsv(text1, text2, start, end) {
+  const rows1 = parseYahooRows(text1, start, end);
+  const rows2 = parseYahooRows(text2, start, end);
+  const m1 = new Map(rows1.map((row) => [row.dateKey, row]));
+  const commonDates = rows2
+    .map((row) => row.dateKey)
+    .filter((date) => m1.has(date))
+    .sort();
+  const m2 = new Map(rows2.map((row) => [row.dateKey, row]));
+  const prices1 = commonDates.map((date) => m1.get(date).close);
+  const prices2 = commonDates.map((date) => m2.get(date).close);
+  const lrs = [[], []];
+
+  for (let i = 1; i < commonDates.length; i += 1) {
+    lrs[0].push(Math.log(prices1[i] / prices1[i - 1]));
+    lrs[1].push(Math.log(prices2[i] / prices2[i - 1]));
+  }
+
+  return { lrs, llrs: lrs, hlrs: lrs };
+}
+
+function parseYahooRows(text, start, end) {
+  const rows = d3.csvParse(text);
+  return rows
+    .map((row) => {
+      const date = new Date(row.Date || row.date || row.Timestamp || "");
+      const close = Number(row["Adj Close"] || row["AdjClose"] || row.Close || row.close);
+      return {
+        date,
+        dateKey: Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : "",
+        close
+      };
+    })
+    .filter((row) => row.dateKey && Number.isFinite(row.close) && row.close > 0)
+    .filter((row) => row.date >= start && row.date <= end)
+    .sort((a, b) => a.date - b.date);
+}
+
+function setPortfolioFromCase(choice) {
+  const map = {
+    wstar: state.wstar,
+    v1: state.v1,
+    v2: state.v2,
+    v1perp: state.v1perp,
+    v2perp: state.v2perp
+  };
+  state.vp = [...(map[choice] || state.wstar)];
+  updateKFromPortfolio();
+  syncPortfolioControls();
+}
+
+function updateKFromPortfolio() {
+  const numerator = quad(state.vp, state.cov, state.vp);
+  const denominator = quad(state.vp, state.cov, state.wstar);
+  state.kf = safeDivide(numerator, denominator, 0);
+  state.vphat = state.kf === 0 ? [...state.vp] : scaleVec(state.vp, 1 / state.kf);
+}
+
+function syncPortfolioControls() {
+  const shownK = Number.isFinite(state.kf) ? state.kf : 0;
+  el.riskOutput.value = formatFixed(shownK, 2);
+  el.riskOutput.textContent = formatFixed(shownK, 2);
+  el.riskSlider.value = String(clamp(shownK, 0, 2));
+  el.customW1Input.value = formatFixed(state.vp[0], 6);
+  el.customW2Input.value = formatFixed(state.vp[1], 6);
+}
+
+function renderAll() {
+  if (!state.bdata) return;
+  state.plr = portfolioLogReturns(state.lrs, state.vp, 0, state.tpy);
+  renderSummary();
+  renderTables();
+  renderCumulativeChart();
+  renderKellyJensenPlot();
+  renderDrawdownGrid();
+  renderKellyVsPortfolio();
+  renderSliceGrid();
+}
+
+function renderSummary() {
+  el.tickCount.textContent = formatInt(state.lrs[0].length);
+  el.tpyValue.textContent = formatInt(state.tpy);
+  el.sourceMode.textContent = state.source;
+}
+
+function renderTables() {
+  const theta = Math.acos(clamp(state.rho12, -1, 1)) * 180 / Math.PI;
+  const assetRows = [
+    {
+      Asset: state.asset1,
+      sigma0: state.sigma1,
+      mu0: state.bdata.mus[0],
+      skew: state.bdata.skew[0],
+      kappa: state.bdata.kurt[0],
+      rho12: state.rho12,
+      theta
+    },
+    {
+      Asset: state.asset2,
+      sigma0: state.sigma2,
+      mu0: state.bdata.mus[1],
+      skew: state.bdata.skew[1],
+      kappa: state.bdata.kurt[1],
+      rho12: state.rho12,
+      theta
+    }
+  ];
+
+  const portfolioRows = [
+    portfolioData(state.v1, `v1 (${state.asset1})`),
+    portfolioData(state.v2, `v2 (${state.asset2})`),
+    portfolioData(state.v1perp, "v1 | 2"),
+    portfolioData(state.v2perp, "v2 | 1"),
+    portfolioData(state.wstar, "w*"),
+    portfolioData(state.vp, "portfolio")
+  ];
+
+  renderAssetTable(assetRows);
+  renderPortfolioTable(portfolioRows);
+}
+
+function renderAssetTable(rows) {
+  const headers = ["Asset", "sigma0", "mu0", "skew", "kappa", "rho12", "theta12 deg"];
+  const html = `
+    <div class="table-scroll">
+      <table>
+        <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.Asset)}</td>
+              <td>${formatNumber(row.sigma0)}</td>
+              <td>${formatNumber(row.mu0)}</td>
+              <td>${formatNumber(row.skew)}</td>
+              <td>${formatNumber(row.kappa)}</td>
+              <td>${formatNumber(row.rho12)}</td>
+              <td>${formatNumber(row.theta)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>`;
+  el.assetTable.innerHTML = html;
+}
+
+function renderPortfolioTable(rows) {
+  const headers = ["Portfolio", "Vector", "vhat", "k0", "sigma0", "mu0", "b0", "s0", "s0^2"];
+  const html = `
+    <div class="table-scroll">
+      <table>
+        <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.label)}</td>
+              <td class="vector-cell">${formatVector(row.vector)}</td>
+              <td class="vector-cell">${formatVector(row.vhat)}</td>
+              <td>${formatNumber(row.k0)}</td>
+              <td>${formatNumber(row.sigma0)}</td>
+              <td>${formatNumber(row.mu0)}</td>
+              <td>${formatNumber(row.b0)}</td>
+              <td>${formatNumber(row.s0)}</td>
+              <td>${formatNumber(row.s02)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>`;
+  el.portfolioTable.innerHTML = html;
+}
+
+function portfolioData(portfolio, label) {
+  const b0 = quad(state.wstar, state.cov, portfolio);
+  const sigma02 = quad(portfolio, state.cov, portfolio);
+  const k0 = safeDivide(sigma02, b0);
+  const vhat = Number.isFinite(k0) && Math.abs(k0) > 1e-12 ? scaleVec(portfolio, 1 / k0) : [NaN, NaN];
+  const mu0 = b0 - 0.5 * sigma02;
+  const sigma0 = Math.sqrt(Math.max(0, sigma02));
+  const s0 = safeDivide(b0, sigma0);
+  return {
+    label,
+    vector: portfolio,
+    vhat,
+    k0,
+    sigma0,
+    mu0,
+    b0,
+    s0,
+    s02: s0 * s0
+  };
+}
+
+function renderCumulativeChart() {
+  const host = el.cumulativeChart;
+  const series = [
+    { name: state.asset1, values: state.lrs[0], color: COLORS.asset1 },
+    { name: state.asset2, values: state.lrs[1], color: COLORS.asset2 },
+    { name: "w*", values: state.psr, color: COLORS.wstar },
+    { name: "Portfolio", values: state.plr, color: COLORS.portfolio }
+  ];
+  const data = [];
+
+  series.forEach((item) => {
+    let total = 0;
+    item.values.forEach((value, tick) => {
+      if (Number.isFinite(value)) total += value;
+      const y = state.chartType === "linear" ? Math.exp(total) : total;
+      data.push({ tick: tick + 1, value: y, name: item.name });
+    });
+  });
+
+  const chart = Plot.plot({
+    width: chartWidth(host),
+    height: 340,
+    marginLeft: 58,
+    marginRight: 18,
+    x: { label: "tick", grid: true },
+    y: { label: state.chartType === "linear" ? "growth multiple" : "log return", grid: true },
+    color: {
+      legend: true,
+      domain: series.map((item) => item.name),
+      range: series.map((item) => item.color)
+    },
+    marks: [
+      Plot.ruleY([state.chartType === "linear" ? 1 : 0], { stroke: "#9aa6b2", strokeDasharray: "4 4" }),
+      Plot.lineY(data, { x: "tick", y: "value", stroke: "name", strokeWidth: 2 })
+    ]
+  });
+
+  host.replaceChildren(chart);
+}
+
+function renderDrawdownGrid() {
+  const host = el.drawdownGrid;
+  const items = [
+    { label: state.asset1, portfolio: state.v1, color: COLORS.asset1 },
+    { label: state.asset2, portfolio: state.v2, color: COLORS.asset2 },
+    { label: "w*", portfolio: state.wstar, color: COLORS.wstar },
+    { label: "Portfolio", portfolio: state.vp, color: COLORS.portfolio }
+  ];
+
+  host.replaceChildren(...items.map((item) => drawdownMiniChart(item)));
+}
+
+function drawdownMiniChart(item) {
+  const box = document.createElement("div");
+  box.className = "mini-chart";
+  const title = document.createElement("h3");
+  const stats = drawdownStats(item.portfolio);
+  title.textContent = `${item.label} - ${formatNumber(stats.days, 3)} days, k=${formatNumber(stats.kp)}, R=${formatNumber(stats.rp)}`;
+  box.append(title);
+
+  if (!stats.dd.length) {
+    const error = document.createElement("div");
+    error.className = "error-text";
+    error.textContent = "Not enough drawdown windows.";
+    box.append(error);
+    return box;
+  }
+
+  const bins = binPdf(stats.dd, -0.3, 0, 0.01);
+  const pdf = d3.range(-0.3, 0.002, 0.004).map((x) => ({
+    x,
+    y: pendPdf(x, stats.mu, Math.sqrt(Math.max(stats.sigma2, 1e-12)), state.ddticks / state.tpy)
+  })).filter((point) => Number.isFinite(point.y) && point.y >= 0);
+
+  const chart = Plot.plot({
+    width: Math.max(260, box.clientWidth || 320),
+    height: 220,
+    marginLeft: 46,
+    marginRight: 12,
+    marginTop: 10,
+    x: { domain: [-0.3, 0], label: "drawdown" },
+    y: { label: "PDF", grid: true },
+    marks: [
+      Plot.rectY(bins, { x1: "x0", x2: "x1", y: "density", fill: item.color, fillOpacity: 0.38 }),
+      Plot.lineY(pdf, { x: "x", y: "y", stroke: item.color, strokeWidth: 2 }),
+      Plot.ruleY([0], { stroke: "#9aa6b2" })
+    ]
+  });
+  box.append(chart);
+  return box;
+}
+
+function drawdownStats(portfolio) {
+  const close = partition(portfolioLogReturns(state.lrs, portfolio, 0, state.tpy), state.ddticks);
+  const low = partition(portfolioLogReturns(state.llrs, portfolio, 0, state.tpy), state.ddticks);
+  const high = partition(portfolioLogReturns(state.hlrs, portfolio, 0, state.tpy), state.ddticks);
+  const n = Math.min(close.length, low.length, high.length);
+  const dd = [];
+
+  for (let i = 0; i < n; i += 1) {
+    const c = close[i];
+    const l = low[i];
+    const h = high[i];
+    const acc = cumulative(c);
+    const candidates = c.map((value, j) => acc[j] - value + Math.min(l[j], h[j]));
+    const minValue = Math.min(...candidates.filter(Number.isFinite), -1e-7);
+    if (Number.isFinite(minValue)) dd.push(minValue);
+  }
+
+  const flat = close.flat().filter(Number.isFinite);
+  const mu = mean(flat) * state.tpy;
+  const sigma2 = variance(flat) * state.tpy;
+  const ap = safeDivide(2 * mu, sigma2);
+  const rp = safeDivide(1, ap);
+  const kp = safeDivide(2, 1 + ap);
+  return {
+    dd,
+    mu,
+    sigma2,
+    ap,
+    rp,
+    kp,
+    days: 365 * state.ddticks / state.tpy
+  };
+}
+
+function renderKellyVsPortfolio() {
+  const host = el.kellyVsPortfolio;
+  const items = kellyCurveItems();
+  const actual = items.flatMap((item) => item.actual.map((point) => ({ ...point, label: item.label })));
+  const model = items.flatMap((item) => item.model.map((point) => ({ ...point, label: item.label })));
+  const points = items.map((item) => ({ ...item.point, label: item.label })).filter((point) => Number.isFinite(point.mu));
+  const names = items.map((item) => item.label);
+
+  const chart = Plot.plot({
+    width: chartWidth(host),
+    height: 350,
+    marginLeft: 58,
+    marginRight: 18,
+    x: { domain: [0, 2], label: "k", grid: true },
+    y: { label: "mu0(k)", grid: true },
+    color: {
+      legend: true,
+      domain: names,
+      range: items.map((item) => item.color)
+    },
+    marks: [
+      Plot.ruleY([0], { stroke: "#9aa6b2", strokeDasharray: "4 4" }),
+      Plot.lineY(model, { x: "k", y: "mu", stroke: "label", strokeOpacity: 0.42, strokeWidth: 2 }),
+      Plot.lineY(actual, { x: "k", y: "mu", stroke: "label", strokeWidth: 2.4 }),
+      Plot.dot(points, { x: "k", y: "mu", fill: "label", stroke: "#ffffff", strokeWidth: 1.4, r: 4.5 })
+    ]
+  });
+
+  host.replaceChildren(chart);
+}
+
+function renderSliceGrid() {
+  const host = el.sliceGrid;
+  host.replaceChildren(...kellyCurveItems().map((item) => {
+    const box = document.createElement("div");
+    box.className = "mini-chart";
+    const title = document.createElement("h3");
+    title.textContent = item.label;
+    box.append(title);
+    const chart = Plot.plot({
+      width: Math.max(240, box.clientWidth || 280),
+      height: 190,
+      marginLeft: 42,
+      marginRight: 12,
+      marginTop: 8,
+      x: { domain: [0, 2], label: "k" },
+      y: { label: "mu0", grid: true },
+      marks: [
+        Plot.ruleY([0], { stroke: "#9aa6b2", strokeDasharray: "4 4" }),
+        Plot.lineY(item.model, { x: "k", y: "mu", stroke: COLORS.model, strokeOpacity: 0.55 }),
+        Plot.lineY(item.actual, { x: "k", y: "mu", stroke: item.color, strokeWidth: 2 }),
+        Plot.dot([item.point], { x: "k", y: "mu", fill: item.color, stroke: "#ffffff", r: 4 })
+      ]
+    });
+    box.append(chart);
+    return box;
+  }));
+}
+
+function kellyCurveItems() {
+  return [
+    kellyCurve(state.v1, state.asset1, COLORS.asset1),
+    kellyCurve(state.v2, state.asset2, COLORS.asset2),
+    kellyCurve(state.wstar, "w*", COLORS.wstar),
+    kellyCurve(state.vp, "Portfolio", COLORS.portfolio)
+  ];
+}
+
+function kellyCurve(portfolio, label, color) {
+  const pSigmaP = quad(portfolio, state.cov, portfolio);
+  const wSigmaP = quad(state.wstar, state.cov, portfolio);
+  const kp = safeDivide(pSigmaP, wSigmaP, 0);
+  const porthat = Math.abs(kp) > 1e-12 ? scaleVec(portfolio, 1 / kp) : [0, 0];
+  const s2 = safeDivide(wSigmaP ** 2, pSigmaP, 0);
+  const actual = [];
+  const model = [];
+
+  for (let i = 0; i <= 40; i += 1) {
+    const k = i * 0.05;
+    const w = scaleVec(porthat, k);
+    actual.push({ k, mu: pdata(w)[0] });
+    model.push({ k, mu: 0.5 * k * (2 - k) * s2 });
+  }
+
+  return {
+    label,
+    color,
+    actual,
+    model,
+    point: { k: kp, mu: pdata(scaleVec(porthat, kp))[0] }
+  };
+}
+
+function renderKellyJensenPlot() {
+  const host = el.kellyJensenPlot;
+  const width = chartWidth(host);
+  const height = Math.min(560, Math.max(420, width));
+  const margin = { top: 18, right: 18, bottom: 44, left: 52 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const ctx = geometryContext();
+  const points = [
+    [0, 0],
+    ctx.v1,
+    ctx.v2,
+    ctx.wstar,
+    ctx.portfolio,
+    ctx.v1perp,
+    ctx.v2perp
+  ];
+  const domain = squareDomain(points, 0.35);
+  const x = d3.scaleLinear().domain(domain.x).range([margin.left, margin.left + innerWidth]).nice();
+  const y = d3.scaleLinear().domain(domain.y).range([margin.top + innerHeight, margin.top]).nice();
+  const cells = geometryCells(ctx, x.domain(), y.domain(), 74);
+  const maxPositive = d3.max(cells, (d) => Math.max(0, d.value)) || 1;
+  const maxNegative = Math.abs(d3.min(cells, (d) => Math.min(0, d.value)) || -1);
+  const svg = d3.create("svg")
+    .attr("class", "geometry-svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("role", "img")
+    .attr("aria-label", "Kelly Jensen geometry plot");
+
+  svg.append("defs").append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 9)
+    .attr("refY", 0)
+    .attr("markerWidth", 7)
+    .attr("markerHeight", 7)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", COLORS.text);
+
+  const plot = svg.append("g");
+  const cellW = Math.abs(x(cells[0].x1) - x(cells[0].x0));
+  const cellH = Math.abs(y(cells[0].y1) - y(cells[0].y0));
+
+  plot.selectAll("rect.heat")
+    .data(cells)
+    .join("rect")
+    .attr("class", "heat")
+    .attr("x", (d) => x(d.x0))
+    .attr("y", (d) => y(d.y1))
+    .attr("width", Math.ceil(cellW) + 1)
+    .attr("height", Math.ceil(cellH) + 1)
+    .attr("fill", (d) => growthColor(d.value, maxPositive, maxNegative))
+    .attr("opacity", 0.78);
+
+  plot.append("g")
+    .attr("transform", `translate(0,${y(0)})`)
+    .call(d3.axisBottom(x).ticks(8).tickSizeOuter(0))
+    .call((g) => g.selectAll("text").attr("fill", COLORS.muted))
+    .call((g) => g.selectAll("path,line").attr("stroke", COLORS.grid));
+
+  plot.append("g")
+    .attr("transform", `translate(${x(0)},0)`)
+    .call(d3.axisLeft(y).ticks(8).tickSizeOuter(0))
+    .call((g) => g.selectAll("text").attr("fill", COLORS.muted))
+    .call((g) => g.selectAll("path,line").attr("stroke", COLORS.grid));
+
+  plot.append("g")
+    .attr("transform", `translate(0,${margin.top + innerHeight})`)
+    .call(d3.axisBottom(x).ticks(8).tickSize(-innerHeight).tickFormat(""))
+    .call((g) => g.selectAll("path").remove())
+    .call((g) => g.selectAll("line").attr("stroke", "#ffffff").attr("stroke-opacity", 0.65));
+
+  plot.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(8).tickSize(-innerWidth).tickFormat(""))
+    .call((g) => g.selectAll("path").remove())
+    .call((g) => g.selectAll("line").attr("stroke", "#ffffff").attr("stroke-opacity", 0.65));
+
+  drawVector(plot, x, y, ctx.v1, COLORS.asset1, "v1");
+  drawVector(plot, x, y, ctx.v2, COLORS.asset2, "v2");
+  drawVector(plot, x, y, ctx.v1perp, COLORS.v1perp, "v1 | 2", true);
+  drawVector(plot, x, y, ctx.v2perp, COLORS.v2perp, "v2 | 1", true);
+  drawVector(plot, x, y, ctx.wstar, COLORS.wstar, "w*");
+
+  plot.append("circle")
+    .attr("cx", x(ctx.portfolio[0]))
+    .attr("cy", y(ctx.portfolio[1]))
+    .attr("r", 6)
+    .attr("fill", COLORS.portfolio)
+    .attr("stroke", "#ffffff")
+    .attr("stroke-width", 2);
+
+  plot.append("text")
+    .attr("class", "vector-label")
+    .attr("x", x(ctx.portfolio[0]) + 8)
+    .attr("y", y(ctx.portfolio[1]) - 8)
+    .text("Portfolio");
+
+  svg.append("text")
+    .attr("class", "axis-label")
+    .attr("x", margin.left + innerWidth / 2)
+    .attr("y", height - 8)
+    .attr("text-anchor", "middle")
+    .text(state.plotType === "orthogonal" ? "orthogonal risk coordinate 1" : "asset weight 1");
+
+  svg.append("text")
+    .attr("class", "axis-label")
+    .attr("transform", `translate(14,${margin.top + innerHeight / 2}) rotate(-90)`)
+    .attr("text-anchor", "middle")
+    .text(state.plotType === "orthogonal" ? "orthogonal risk coordinate 2" : "asset weight 2");
+
+  host.replaceChildren(svg.node(), geometryLegend());
+}
+
+function geometryContext() {
+  if (state.plotType === "orthogonal") {
+    const root = Math.sqrt(Math.max(0, 1 - state.rho12 * state.rho12));
+    const v1 = [state.sigma1, 0];
+    const v2 = [state.sigma2 * state.rho12, state.sigma2 * root];
+    const transform = (w) => addVec(scaleVec(v1, w[0]), scaleVec(v2, w[1]));
+    return {
+      metric: [[1, 0], [0, 1]],
+      v1,
+      v2,
+      wstar: transform(state.wstar),
+      portfolio: transform(state.vp),
+      v1perp: transform(state.v1perp),
+      v2perp: transform(state.v2perp)
+    };
+  }
+
+  return {
+    metric: state.cov,
+    v1: state.v1,
+    v2: state.v2,
+    wstar: state.wstar,
+    portfolio: state.vp,
+    v1perp: state.v1perp,
+    v2perp: state.v2perp
+  };
+}
+
+function geometryCells(ctx, xDomain, yDomain, steps) {
+  const cells = [];
+  const dx = (xDomain[1] - xDomain[0]) / steps;
+  const dy = (yDomain[1] - yDomain[0]) / steps;
+  for (let ix = 0; ix < steps; ix += 1) {
+    for (let iy = 0; iy < steps; iy += 1) {
+      const x0 = xDomain[0] + ix * dx;
+      const y0 = yDomain[0] + iy * dy;
+      const point = [x0 + dx / 2, y0 + dy / 2];
+      cells.push({
+        x0,
+        x1: x0 + dx,
+        y0,
+        y1: y0 + dy,
+        value: geometryGrowth(point, ctx)
+      });
+    }
+  }
+  return cells;
+}
+
+function geometryGrowth(point, ctx) {
+  return quad(point, ctx.metric, ctx.wstar) - 0.5 * quad(point, ctx.metric, point);
+}
+
+function drawVector(plot, x, y, end, color, label, dashed = false) {
+  if (!Number.isFinite(end[0]) || !Number.isFinite(end[1])) return;
+  plot.append("line")
+    .attr("x1", x(0))
+    .attr("y1", y(0))
+    .attr("x2", x(end[0]))
+    .attr("y2", y(end[1]))
+    .attr("stroke", color)
+    .attr("stroke-width", 2.2)
+    .attr("stroke-dasharray", dashed ? "5 5" : null)
+    .attr("marker-end", "url(#arrowhead)");
+
+  plot.append("circle")
+    .attr("cx", x(end[0]))
+    .attr("cy", y(end[1]))
+    .attr("r", 3.4)
+    .attr("fill", color);
+
+  plot.append("text")
+    .attr("class", "vector-label")
+    .attr("x", x(end[0]) + 7)
+    .attr("y", y(end[1]) - 7)
+    .attr("fill", color)
+    .text(label);
+}
+
+function geometryLegend() {
+  const wrap = document.createElement("div");
+  [
+    ["positive growth", "#6ea971"],
+    ["negative growth", "#d4777d"],
+    ["selected portfolio", COLORS.portfolio]
+  ].forEach(([label, color]) => {
+    const item = document.createElement("span");
+    item.className = "legend-chip";
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.background = color;
+    item.append(swatch, document.createTextNode(label));
+    wrap.append(item);
+  });
+  return wrap;
+}
+
+function portfolioLogReturns(lrs, w, r = 0, tpy = state.tpy) {
+  const n = Math.min(lrs[0].length, lrs[1].length);
+  const rf = Math.exp(r / tpy);
+  const output = new Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const gross = rf + w[0] * (Math.exp(lrs[0][i]) - rf) + w[1] * (Math.exp(lrs[1][i]) - rf);
+    output[i] = gross > 0 ? Math.log(gross) : NaN;
+  }
+  return output;
+}
+
+function pdata(w, r = 0, tickperyear = state.tpy) {
+  const returns = portfolioLogReturns(state.lrs, w, r, tickperyear).filter(Number.isFinite);
+  return [mean(returns) * tickperyear, variance(returns) * tickperyear];
+}
+
+function pendPdf(x, mu, sigma, t) {
+  if (!(sigma > 0) || !(t > 0)) return 0;
+  const sigma2 = sigma * sigma;
+  const first = Math.exp(-((x - t * mu) ** 2) / (2 * t * sigma2)) * Math.sqrt(2 / Math.PI) * sigma / Math.sqrt(t);
+  const erfArg = (x + t * mu) / (Math.SQRT2 * Math.sqrt(t) * sigma);
+  const second = Math.exp((2 * x * mu) / sigma2) * mu * (1 + erf(erfArg));
+  return (first + second) / sigma2;
+}
+
+function binPdf(values, min, max, step) {
+  const bins = [];
+  const count = Math.ceil((max - min) / step);
+  for (let i = 0; i < count; i += 1) {
+    bins.push({ x0: min + i * step, x1: min + (i + 1) * step, count: 0, density: 0 });
+  }
+  values.forEach((value) => {
+    const i = Math.floor((value - min) / step);
+    if (i >= 0 && i < bins.length) bins[i].count += 1;
+  });
+  bins.forEach((bin) => {
+    bin.density = values.length ? bin.count / (values.length * step) : 0;
+  });
+  return bins;
+}
+
+function partition(values, size) {
+  const chunks = [];
+  for (let i = 0; i + size <= values.length; i += size) {
+    chunks.push(values.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function cumulative(values) {
+  let total = 0;
+  return values.map((value) => {
+    total += Number.isFinite(value) ? value : 0;
+    return total;
+  });
+}
+
+function mean(values) {
+  const clean = values.filter(Number.isFinite);
+  return clean.length ? sum(clean) / clean.length : NaN;
+}
+
+function variance(values) {
+  const clean = values.filter(Number.isFinite);
+  if (clean.length < 2) return NaN;
+  const m = mean(clean);
+  return sum(clean.map((value) => (value - m) ** 2)) / (clean.length - 1);
+}
+
+function standardDeviation(values) {
+  return Math.sqrt(Math.max(0, variance(values)));
+}
+
+function skewness(values) {
+  const clean = values.filter(Number.isFinite);
+  if (clean.length < 3) return NaN;
+  const m = mean(clean);
+  const sd = standardDeviation(clean);
+  if (!(sd > 0)) return 0;
+  return mean(clean.map((value) => ((value - m) / sd) ** 3));
+}
+
+function kurtosis(values) {
+  const clean = values.filter(Number.isFinite);
+  if (clean.length < 4) return NaN;
+  const m = mean(clean);
+  const sd = standardDeviation(clean);
+  if (!(sd > 0)) return 0;
+  return mean(clean.map((value) => ((value - m) / sd) ** 4));
+}
+
+function covariance2(xs, ys) {
+  const n = Math.min(xs.length, ys.length);
+  if (n < 2) return [[NaN, NaN], [NaN, NaN]];
+  const x = xs.slice(0, n);
+  const y = ys.slice(0, n);
+  const mx = mean(x);
+  const my = mean(y);
+  let c00 = 0;
+  let c01 = 0;
+  let c11 = 0;
+  for (let i = 0; i < n; i += 1) {
+    const dx = x[i] - mx;
+    const dy = y[i] - my;
+    c00 += dx * dx;
+    c01 += dx * dy;
+    c11 += dy * dy;
+  }
+  const denom = n - 1;
+  return [[c00 / denom, c01 / denom], [c01 / denom, c11 / denom]];
+}
+
+function correlation2(xs, ys) {
+  const cov = covariance2(xs, ys);
+  const sx = Math.sqrt(cov[0][0]);
+  const sy = Math.sqrt(cov[1][1]);
+  const rho = safeDivide(cov[0][1], sx * sy, 0);
+  return [[1, rho], [rho, 1]];
+}
+
+function inverse2(matrix) {
+  let [[a, b], [c, d]] = matrix;
+  let det = a * d - b * c;
+  if (!Number.isFinite(det) || Math.abs(det) < 1e-12) {
+    const ridge = Math.max(Math.abs(a), Math.abs(d), 1) * 1e-8;
+    a += ridge;
+    d += ridge;
+    det = a * d - b * c;
+  }
+  return [[d / det, -b / det], [-c / det, a / det]];
+}
+
+function matVec(matrix, vector) {
+  return [
+    matrix[0][0] * vector[0] + matrix[0][1] * vector[1],
+    matrix[1][0] * vector[0] + matrix[1][1] * vector[1]
+  ];
+}
+
+function quad(a, matrix, b = a) {
+  return dot(a, matVec(matrix, b));
+}
+
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+
+function addVec(a, b) {
+  return [a[0] + b[0], a[1] + b[1]];
+}
+
+function subVec(a, b) {
+  return [a[0] - b[0], a[1] - b[1]];
+}
+
+function scaleVec(v, k) {
+  return [v[0] * k, v[1] * k];
+}
+
+function sum(values) {
+  return values.reduce((total, value) => total + value, 0);
+}
+
+function trimSeriesPair(a, b, forcedLength) {
+  const n = forcedLength ?? Math.min(a.length, b.length);
+  return [a.slice(0, n), b.slice(0, n)];
+}
+
+function cleanSeries(values) {
+  return values.map(Number).filter(Number.isFinite);
+}
+
+function recenter(values, targetMean) {
+  const currentMean = mean(values);
+  for (let i = 0; i < values.length; i += 1) {
+    values[i] = values[i] - currentMean + targetMean;
+  }
+}
+
+function squareDomain(points, padFactor) {
+  const finite = points.filter((point) => Number.isFinite(point[0]) && Number.isFinite(point[1]));
+  const xs = finite.map((point) => point[0]);
+  const ys = finite.map((point) => point[1]);
+  const minX = Math.min(...xs, -0.1);
+  const maxX = Math.max(...xs, 0.1);
+  const minY = Math.min(...ys, -0.1);
+  const maxY = Math.max(...ys, 0.1);
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const span = Math.max(maxX - minX, maxY - minY, 1e-3);
+  const half = span * (0.5 + padFactor);
+  return { x: [cx - half, cx + half], y: [cy - half, cy + half] };
+}
+
+function growthColor(value, maxPositive, maxNegative) {
+  if (value >= 0) {
+    const t = Math.sqrt(clamp(value / maxPositive, 0, 1));
+    return d3.interpolateRgb("#f5f8f3", "#5f9866")(t);
+  }
+  const t = Math.sqrt(clamp(Math.abs(value) / maxNegative, 0, 1));
+  return d3.interpolateRgb("#fff7f7", "#c75a63")(t);
+}
+
+function parseAppDate(value, allowNow) {
+  const text = String(value || "").trim();
+  if (allowNow && /^now$/i.test(text)) return new Date();
+  const date = new Date(text);
+  if (!Number.isFinite(date.getTime())) {
+    throw new Error(`Invalid date: ${text || "(blank)"}.`);
+  }
+  return date;
+}
+
+function readNumber(input, fallback) {
+  const value = Number(input.value);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function safeDivide(a, b, fallback = NaN) {
+  return Number.isFinite(a) && Number.isFinite(b) && Math.abs(b) > 1e-12 ? a / b : fallback;
+}
+
+function safeNumber(value, fallback = 0) {
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function chartWidth(host) {
+  return Math.max(320, Math.floor(host.getBoundingClientRect().width || host.clientWidth || 640));
+}
+
+function formatNumber(value, precision = 3) {
+  if (!Number.isFinite(value)) return "n/a";
+  if (Math.abs(value) >= 1000 || (Math.abs(value) > 0 && Math.abs(value) < 0.001)) {
+    return value.toExponential(precision - 1);
+  }
+  return Number(value.toPrecision(precision)).toString();
+}
+
+function formatVector(vector) {
+  return `[${formatNumber(vector[0])}, ${formatNumber(vector[1])}]`;
+}
+
+function formatFixed(value, digits) {
+  return Number.isFinite(value) ? value.toFixed(digits) : "0";
+}
+
+function formatInt(value) {
+  return new Intl.NumberFormat("en-US").format(Math.round(value));
+}
+
+function stripExtension(name) {
+  return name.replace(/\.[^.]+$/, "");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function setStatus(message) {
+  el.statusText.textContent = message;
+}
+
+function showError(error) {
+  console.error(error);
+  setStatus(error.message || String(error));
+}
+
+function setBusy(isBusy) {
+  [el.loadBinanceButton, el.loadCsvButton, el.sampleButton].forEach((button) => {
+    button.disabled = isBusy;
+  });
+}
+
+function debounce(fn, delay) {
+  let timer = 0;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+function mulberry32(seed) {
+  return function next() {
+    let t = seed += 0x6d2b79f5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function normalRandom(rng) {
+  const u1 = Math.max(rng(), Number.EPSILON);
+  const u2 = rng();
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+function erf(x) {
+  const sign = Math.sign(x);
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+  const p = 0.3275911;
+  const z = Math.abs(x);
+  const t = 1 / (1 + p * z);
+  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+  return sign * y;
+}
+    </script>
+  </body>
+</html>
