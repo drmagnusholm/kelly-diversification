@@ -161,8 +161,7 @@ h2 {
 }
 
 .control-block,
-.chart-panel,
-.table-wrap {
+.chart-panel {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface);
@@ -306,21 +305,6 @@ output {
   min-width: 0;
 }
 
-.metrics-band {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  gap: 14px;
-}
-
-.table-wrap {
-  min-width: 0;
-  padding: 12px;
-}
-
-.table-wrap h2 {
-  margin-bottom: 10px;
-}
-
 .table-scroll {
   overflow: auto;
 }
@@ -342,8 +326,7 @@ td {
 }
 
 th:first-child,
-td:first-child,
-td.vector-cell {
+td:first-child {
   text-align: left;
 }
 
@@ -375,6 +358,136 @@ tr:last-child td {
 
 .chart-wide {
   grid-column: 1 / -1;
+}
+
+.analysis-note {
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.comparison-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin: 8px 0;
+}
+
+.strategy-scroll {
+  max-height: 620px;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.strategy-metrics {
+  min-width: 1020px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.strategy-metrics thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-alt);
+  border-top: 3px solid var(--portfolio-color, var(--line));
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.strategy-metrics th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  font-weight: 600;
+  white-space: normal;
+}
+
+.strategy-metrics thead th:first-child {
+  width: 260px;
+  z-index: 3;
+  background: var(--surface-alt);
+}
+
+.strategy-heading {
+  display: block;
+  color: var(--portfolio-color);
+}
+
+.strategy-metrics .selected-portfolio {
+  background: #fcf0f1;
+  font-weight: 700;
+}
+
+.strategy-metrics .metric-group th {
+  padding-top: 12px;
+  background: var(--surface-alt);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.analysis-definitions {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.analysis-definitions summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.correlation-matrix {
+  min-width: 480px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 3px;
+}
+
+.correlation-matrix th,
+.correlation-matrix td {
+  padding: 12px 5px;
+  border: 0;
+  text-align: center;
+}
+
+.correlation-matrix th {
+  color: var(--portfolio-color, var(--muted));
+  white-space: normal;
+  background: var(--surface);
+}
+
+.correlation-matrix th:first-child {
+  width: 90px;
+  text-align: left;
+}
+
+.correlation-matrix td {
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.correlation-scale {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 420px;
+  margin: 14px auto 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.correlation-scale div {
+  flex-basis: 100%;
+  height: 10px;
+  border-radius: 4px;
 }
 
 .plot-host {
@@ -427,6 +540,68 @@ tr:last-child td {
   width: 100%;
   height: auto;
   display: block;
+  touch-action: none;
+}
+
+#kellyJensenPlot {
+  position: relative;
+}
+
+.portfolio-handle {
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+
+.portfolio-handle.is-dragging {
+  cursor: grabbing;
+}
+
+.portfolio-handle:focus-visible .portfolio-hit-target,
+.portfolio-handle.is-dragging .portfolio-hit-target {
+  stroke: var(--red);
+  stroke-width: 1.5;
+  fill: rgba(196, 77, 88, 0.12);
+}
+
+.portfolio-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  max-width: calc(100% - 24px);
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.portfolio-overlay dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 5px 12px;
+  margin: 8px 0 0;
+}
+
+.portfolio-overlay dt {
+  color: var(--muted);
+}
+
+.portfolio-overlay dd {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.geometry-hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 
 .axis-label {
@@ -465,18 +640,12 @@ tr:last-child td {
 }
 
 @media (max-width: 1180px) {
-  .workspace,
-  .metrics-band,
-  .chart-grid {
+  .workspace {
     grid-template-columns: 1fr;
   }
 
   .control-rail {
     position: static;
-  }
-
-  .chart-wide {
-    grid-column: auto;
   }
 
   .slice-grid {
@@ -485,6 +654,10 @@ tr:last-child td {
 }
 
 @media (max-width: 760px) {
+  .strategy-metrics thead th:first-child {
+    width: 180px;
+  }
+
   .app-shell {
     padding: 10px;
   }
@@ -496,15 +669,19 @@ tr:last-child td {
   .summary-strip,
   .split-inputs,
   .mini-grid,
-  .slice-grid {
+  .slice-grid,
+  .chart-grid {
     grid-template-columns: 1fr;
   }
 
   .control-rail,
   .analysis-area,
-  .chart-grid,
-  .metrics-band {
+  .chart-grid {
     gap: 10px;
+  }
+
+  .chart-wide {
+    grid-column: auto;
   }
 
   .plot-host {
@@ -582,7 +759,11 @@ tr:last-child td {
             </div>
 
             <div class="source-pane" data-source-pane="sample">
-              <label>Sample Ticks <input id="sampleSizeInput" type="number" value="26280" min="100" step="100"></label>
+              <label>Start date <input id="sampleStartDateInput" type="date" value="2020-01-01" required></label>
+              <div class="split-inputs">
+                <label>Years <input id="sampleYearsInput" type="number" value="3" min="0.01" step="any" required></label>
+                <label>Ticks per year <input id="sampleTpyInput" type="number" value="8760" min="1" step="1" required></label>
+              </div>
               <div class="split-inputs">
                 <label>mu 1 <input id="sampleMu1Input" type="number" value="0.1" step="0.01"></label>
                 <label>sigma 1 <input id="sampleSigma1Input" type="number" value="0.4" step="0.01" min="0.001"></label>
@@ -609,6 +790,7 @@ tr:last-child td {
                 <option value="v2">v2</option>
                 <option value="v1perp">v1 | 2</option>
                 <option value="v2perp">v2 | 1</option>
+                <option value="custom">Custom</option>
               </select>
             </label>
             <label>Portfolio Risk (k)
@@ -648,17 +830,6 @@ tr:last-child td {
         </aside>
 
         <section class="analysis-area">
-          <section class="metrics-band">
-            <div class="table-wrap">
-              <h2>Assets</h2>
-              <div id="assetTable"></div>
-            </div>
-            <div class="table-wrap">
-              <h2>Portfolios</h2>
-              <div id="portfolioTable"></div>
-            </div>
-          </section>
-
           <section class="chart-grid">
             <article class="chart-panel chart-wide">
               <h2>Cumulative Returns</h2>
@@ -671,13 +842,46 @@ tr:last-child td {
             </article>
 
             <article class="chart-panel">
-              <h2>Draw-Down Risk</h2>
-              <div id="drawdownGrid" class="mini-grid"></div>
+              <h2>Portfolio Correlation Matrix</h2>
+              <p class="analysis-note">Correlations of the six portfolios, calculated from asset covariance and portfolio weights. Zero-volatility portfolios show n/a.</p>
+              <div id="correlationMatrix"></div>
+            </article>
+
+            <article class="chart-panel">
+              <h2>Drawdown Distribution</h2>
+              <p class="analysis-note">Full-history drawdown depth by confidence level, with a dedicated color for each portfolio.</p>
+              <div id="drawdownDistribution" class="plot-host"></div>
+            </article>
+
+            <article class="chart-panel">
+              <h2>Duration Distribution</h2>
+              <p class="analysis-note">Observed and modeled time underwater, using the same portfolio colors.</p>
+              <div id="durationDistribution" class="plot-host"></div>
             </article>
 
             <article class="chart-panel chart-wide">
+              <h2>Portfolio &amp; Strategy Metrics</h2>
+              <p class="analysis-note">Compare assets, orthogonal portfolios, full Kelly (w*), and your selected portfolio. Hover over a metric for its definition.</p>
+              <p id="strategyMetricsStatus" class="analysis-note error-text" role="status" hidden></p>
+              <div class="table-scroll strategy-scroll" tabindex="0" aria-label="Scroll portfolio and strategy metrics">
+                <table id="strategyMetrics" class="strategy-metrics" aria-label="Portfolio and strategy metrics"></table>
+              </div>
+              <details class="analysis-definitions">
+                <summary>Metric definitions and conventions</summary>
+                <p>The portfolio weights and Kelly geometry section uses the asset covariance model and matches the geometry plot. The remaining metrics follow <a href="https://drmagnusholm.github.io/trading-strategy-analysis-pages/" target="_blank" rel="noopener noreferrer">Trading Strategy Analysis Studio</a>, using realized, periodically rebalanced returns and a 0% cash rate. Return-based model estimates can differ from the covariance-based geometry values.</p>
+                <p>Volatility uses sample variance. Sharpe, Sortino, Omega, and historical tail risk use simple returns. Sortino includes all periods in its denominator. Drawdowns start from equity of 1; longest duration includes recovery and any ongoing drawdown. Model curves require positive log drift and nonzero volatility.</p>
+                <p>Annualization uses the data's ticks per year. Rolling statistics require a complete observation window. Calendar-month statistics use UTC dates, including partial months. Sample dates start on the selected date and advance by 365 days divided by ticks per year; Binance and CSV keep their original dates. Undefined ratios and invalid portfolio histories show n/a.</p>
+              </details>
+            </article>
+
+            <article class="chart-panel">
               <h2>Logarithmic Returns - mu0(k)</h2>
               <div id="kellyVsPortfolio" class="plot-host"></div>
+            </article>
+
+            <article class="chart-panel">
+              <h2>Draw-Down Risk</h2>
+              <div id="drawdownGrid" class="mini-grid"></div>
             </article>
 
             <article class="chart-panel chart-wide">
@@ -723,6 +927,8 @@ const INTERVAL_MS = {
   "1w": 604_800_000
 };
 
+const MS_PER_MODEL_YEAR = 365 * 86_400_000;
+
 const state = {
   source: "Sample",
   tpy: 8760,
@@ -737,6 +943,7 @@ const state = {
   lrs: [[], []],
   llrs: [[], []],
   hlrs: [[], []],
+  timestamps: null,
   bdata: null,
   cov: [[1, 0], [0, 1]],
   wstar: [0, 0],
@@ -754,6 +961,9 @@ const state = {
   beta12: 0,
   beta21: 0
 };
+
+const geometryInteraction = { finishDrag: null, renderTimer: 0, updatePortfolio: null };
+const strategyAnalysisCache = { dataset: null, entries: [] };
 
 const el = {
   statusText: byId("statusText"),
@@ -773,7 +983,9 @@ const el = {
   csvStartInput: byId("csvStartInput"),
   csvEndInput: byId("csvEndInput"),
   loadCsvButton: byId("loadCsvButton"),
-  sampleSizeInput: byId("sampleSizeInput"),
+  sampleStartDateInput: byId("sampleStartDateInput"),
+  sampleYearsInput: byId("sampleYearsInput"),
+  sampleTpyInput: byId("sampleTpyInput"),
   sampleMu1Input: byId("sampleMu1Input"),
   sampleMu2Input: byId("sampleMu2Input"),
   sampleSigma1Input: byId("sampleSigma1Input"),
@@ -790,13 +1002,16 @@ const el = {
   updateDrawdownButton: byId("updateDrawdownButton"),
   chartTypeInput: byId("chartTypeInput"),
   plotTypeInput: byId("plotTypeInput"),
-  assetTable: byId("assetTable"),
-  portfolioTable: byId("portfolioTable"),
+  correlationMatrix: byId("correlationMatrix"),
   cumulativeChart: byId("cumulativeChart"),
   kellyJensenPlot: byId("kellyJensenPlot"),
   drawdownGrid: byId("drawdownGrid"),
   kellyVsPortfolio: byId("kellyVsPortfolio"),
-  sliceGrid: byId("sliceGrid")
+  sliceGrid: byId("sliceGrid"),
+  strategyMetrics: byId("strategyMetrics"),
+  strategyMetricsStatus: byId("strategyMetricsStatus"),
+  drawdownDistribution: byId("drawdownDistribution"),
+  durationDistribution: byId("durationDistribution")
 };
 
 bindEvents();
@@ -825,13 +1040,15 @@ function bindEvents() {
     state.kf = readNumber(el.riskSlider, state.kf);
     state.vp = scaleVec(state.vphat, state.kf);
     syncPortfolioControls();
-    renderAll();
+    geometryInteraction.updatePortfolio?.();
+    schedulePortfolioRender();
   });
 
   el.updatePortfolioButton.addEventListener("click", () => {
     const w1 = readNumber(el.customW1Input, state.vp[0]);
     const w2 = readNumber(el.customW2Input, state.vp[1]);
     state.vp = [w1, w2];
+    state.pCase = "custom";
     updateKFromPortfolio();
     syncPortfolioControls();
     renderAll();
@@ -849,6 +1066,7 @@ function bindEvents() {
   });
 
   el.plotTypeInput.addEventListener("change", () => {
+    geometryInteraction.finishDrag?.();
     state.plotType = el.plotTypeInput.value;
     renderKellyJensenPlot();
   });
@@ -892,7 +1110,7 @@ async function loadBinanceData() {
       asset1,
       asset2,
       source: "Binance",
-      tpy: interval === "1d" ? 365 : 8760
+      tpy: 365 * 86_400_000 / INTERVAL_MS[interval]
     });
     setStatus(`Loaded ${formatInt(state.lrs[0].length)} matched return ticks from Binance.`);
   } catch (error) {
@@ -935,50 +1153,78 @@ async function loadCsvData() {
 
 function generateSample(initial) {
   try {
-    const size = Math.max(100, Math.round(readNumber(el.sampleSizeInput, 26280)));
-    const mu1 = readNumber(el.sampleMu1Input, 0.1);
-    const mu2 = readNumber(el.sampleMu2Input, 0.1);
-    const sigma1 = Math.max(0.001, readNumber(el.sampleSigma1Input, 0.4));
-    const sigma2 = Math.max(0.001, readNumber(el.sampleSigma2Input, 0.4));
-    const rho = clamp(readNumber(el.sampleRhoInput, 0.5), -0.99, 0.99);
-    const adjusted = document.querySelector("input[name='sampleType']:checked")?.value !== "raw";
-    const rng = mulberry32(initial ? state.sampleSeed : ++state.sampleSeed);
-    const lrs = [new Array(size), new Array(size)];
-    const root = Math.sqrt(1 - rho * rho);
-
-    for (let i = 0; i < size; i += 1) {
-      const z1 = normalRandom(rng);
-      const z2 = normalRandom(rng);
-      lrs[0][i] = mu1 / 8760 + (sigma1 / Math.sqrt(8760)) * z1;
-      lrs[1][i] = mu2 / 8760 + (sigma2 / Math.sqrt(8760)) * (rho * z1 + root * z2);
-    }
-
-    if (adjusted) {
-      recenter(lrs[0], mu1 / 8760);
-      recenter(lrs[1], mu2 / 8760);
-    }
-
+    const returns = createSampleReturns({
+      startDate: el.sampleStartDateInput.value,
+      years: el.sampleYearsInput.valueAsNumber,
+      tpy: el.sampleTpyInput.valueAsNumber,
+      mu1: readNumber(el.sampleMu1Input, 0.1),
+      mu2: readNumber(el.sampleMu2Input, 0.1),
+      sigma1: Math.max(0.001, readNumber(el.sampleSigma1Input, 0.4)),
+      sigma2: Math.max(0.001, readNumber(el.sampleSigma2Input, 0.4)),
+      rho: clamp(readNumber(el.sampleRhoInput, 0.5), -0.99, 0.99),
+      adjusted: document.querySelector("input[name='sampleType']:checked")?.value !== "raw",
+      seed: initial ? state.sampleSeed : ++state.sampleSeed
+    });
     applyReturnSet({
-      lrs,
-      llrs: lrs,
-      hlrs: lrs,
+      ...returns,
       asset1: "Sample 1",
       asset2: "Sample 2",
-      source: "Sample",
-      tpy: 8760
+      source: "Sample"
     });
-    setStatus(`${initial ? "Initialized" : "Generated"} ${formatInt(size)} synthetic return ticks.`);
+    const firstDate = new Date(returns.timestamps[0]).toISOString().slice(0, 10);
+    const lastDate = new Date(returns.timestamps.at(-1)).toISOString().slice(0, 10);
+    setStatus(`${initial ? "Initialized" : "Generated"} ${formatInt(returns.timestamps.length)} synthetic returns, ${firstDate} to ${lastDate} (${formatInt(returns.tpy)} ticks/year).`);
   } catch (error) {
     showError(error);
   }
 }
 
-function applyReturnSet({ lrs, llrs, hlrs, asset1, asset2, source, tpy }) {
+function createSampleReturns({ startDate, years, tpy, mu1, mu2, sigma1, sigma2, rho, adjusted, seed }) {
+  const start = parseAppDate(startDate, false).getTime();
+  if (!Number.isFinite(years) || years < 0.01) {
+    throw new Error("Sample years must be at least 0.01.");
+  }
+  if (!Number.isSafeInteger(tpy) || tpy < 1) {
+    throw new Error("Sample ticks per year must be a positive whole number.");
+  }
+  const size = Math.round(years * tpy);
+  if (!Number.isSafeInteger(size) || size < 3 || size > 4_294_967_295) {
+    throw new Error("Choose sample years and ticks per year that produce at least 3 returns and a supported sample size.");
+  }
+  const step = MS_PER_MODEL_YEAR / tpy;
+  if (!Number.isFinite(new Date(start + (size - 1) * step).getTime())) {
+    throw new Error("The sample's end date is outside the supported date range.");
+  }
+  const timestamps = Array.from({ length: size }, (_, i) => start + i * step);
+  const rng = mulberry32(seed);
+  const lrs = [new Array(size), new Array(size)];
+  const root = Math.sqrt(1 - rho * rho);
+  const sqrtTpy = Math.sqrt(tpy);
+
+  for (let i = 0; i < size; i += 1) {
+    const z1 = normalRandom(rng);
+    const z2 = normalRandom(rng);
+    lrs[0][i] = mu1 / tpy + (sigma1 / sqrtTpy) * z1;
+    lrs[1][i] = mu2 / tpy + (sigma2 / sqrtTpy) * (rho * z1 + root * z2);
+  }
+  if (adjusted) {
+    recenter(lrs[0], mu1 / tpy);
+    recenter(lrs[1], mu2 / tpy);
+  }
+  return { lrs, llrs: lrs, hlrs: lrs, timestamps, tpy };
+}
+
+function applyReturnSet({ lrs, llrs, hlrs, timestamps, asset1, asset2, source, tpy }) {
   const trimmed = trimSeriesPair(lrs[0], lrs[1]);
   const lowTrimmed = trimSeriesPair((llrs || lrs)[0], (llrs || lrs)[1], trimmed[0].length);
   const highTrimmed = trimSeriesPair((hlrs || lrs)[0], (hlrs || lrs)[1], trimmed[0].length);
   const bdata = calcReturnData(trimmed, lowTrimmed, highTrimmed, tpy);
+  if (timestamps?.length !== bdata.lrs[0].length
+      || !timestamps.every((time) => Number.isFinite(time) && Number.isFinite(new Date(time).getTime()))) {
+    throw new Error("Each return must have a matching valid date.");
+  }
 
+  geometryInteraction.finishDrag?.();
   state.source = source;
   state.tpy = tpy;
   state.asset1 = asset1;
@@ -987,6 +1233,7 @@ function applyReturnSet({ lrs, llrs, hlrs, asset1, asset2, source, tpy }) {
   state.lrs = bdata.lrs;
   state.llrs = bdata.llrs;
   state.hlrs = bdata.hlrs;
+  state.timestamps = timestamps;
   state.cov = bdata.cov;
   state.wstar = bdata.wstar;
   state.sigma1 = bdata.stds[0];
@@ -1107,7 +1354,7 @@ function returnsFromCandles(candles1, candles2) {
     appendCandleReturns(lrs, llrs, hlrs, 1, b[i - 1], b[i]);
   }
 
-  return { lrs, llrs, hlrs };
+  return { lrs, llrs, hlrs, timestamps: commonTimes.slice(1) };
 }
 
 function appendCandleReturns(lrs, llrs, hlrs, assetIndex, previous, current) {
@@ -1135,7 +1382,7 @@ function returnsFromYahooCsv(text1, text2, start, end) {
     lrs[1].push(Math.log(prices2[i] / prices2[i - 1]));
   }
 
-  return { lrs, llrs: lrs, hlrs: lrs };
+  return { lrs, llrs: lrs, hlrs: lrs, timestamps: commonDates.slice(1).map((date) => Date.parse(date)) };
 }
 
 function parseYahooRows(text, start, end) {
@@ -1161,7 +1408,8 @@ function setPortfolioFromCase(choice) {
     v1: state.v1,
     v2: state.v2,
     v1perp: state.v1perp,
-    v2perp: state.v2perp
+    v2perp: state.v2perp,
+    custom: state.vp
   };
   state.vp = [...(map[choice] || state.wstar)];
   updateKFromPortfolio();
@@ -1176,6 +1424,7 @@ function updateKFromPortfolio() {
 }
 
 function syncPortfolioControls() {
+  el.portfolioCaseInput.value = state.pCase;
   const shownK = Number.isFinite(state.kf) ? state.kf : 0;
   el.riskOutput.value = formatFixed(shownK, 2);
   el.riskOutput.textContent = formatFixed(shownK, 2);
@@ -1185,107 +1434,22 @@ function syncPortfolioControls() {
 }
 
 function renderAll() {
+  clearTimeout(geometryInteraction.renderTimer);
   if (!state.bdata) return;
   state.plr = portfolioLogReturns(state.lrs, state.vp, 0, state.tpy);
   renderSummary();
-  renderTables();
   renderCumulativeChart();
   renderKellyJensenPlot();
   renderDrawdownGrid();
   renderKellyVsPortfolio();
   renderSliceGrid();
+  renderStrategyAnalysis();
 }
 
 function renderSummary() {
   el.tickCount.textContent = formatInt(state.lrs[0].length);
   el.tpyValue.textContent = formatInt(state.tpy);
   el.sourceMode.textContent = state.source;
-}
-
-function renderTables() {
-  const theta = Math.acos(clamp(state.rho12, -1, 1)) * 180 / Math.PI;
-  const assetRows = [
-    {
-      Asset: state.asset1,
-      sigma0: state.sigma1,
-      mu0: state.bdata.mus[0],
-      skew: state.bdata.skew[0],
-      kappa: state.bdata.kurt[0],
-      rho12: state.rho12,
-      theta
-    },
-    {
-      Asset: state.asset2,
-      sigma0: state.sigma2,
-      mu0: state.bdata.mus[1],
-      skew: state.bdata.skew[1],
-      kappa: state.bdata.kurt[1],
-      rho12: state.rho12,
-      theta
-    }
-  ];
-
-  const portfolioRows = [
-    portfolioData(state.v1, `v1 (${state.asset1})`),
-    portfolioData(state.v2, `v2 (${state.asset2})`),
-    portfolioData(state.v1perp, "v1 | 2"),
-    portfolioData(state.v2perp, "v2 | 1"),
-    portfolioData(state.wstar, "w*"),
-    portfolioData(state.vp, "portfolio")
-  ];
-
-  renderAssetTable(assetRows);
-  renderPortfolioTable(portfolioRows);
-}
-
-function renderAssetTable(rows) {
-  const headers = ["Asset", "sigma0", "mu0", "skew", "kappa", "rho12", "theta12 deg"];
-  const html = `
-    <div class="table-scroll">
-      <table>
-        <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.Asset)}</td>
-              <td>${formatNumber(row.sigma0)}</td>
-              <td>${formatNumber(row.mu0)}</td>
-              <td>${formatNumber(row.skew)}</td>
-              <td>${formatNumber(row.kappa)}</td>
-              <td>${formatNumber(row.rho12)}</td>
-              <td>${formatNumber(row.theta)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>`;
-  el.assetTable.innerHTML = html;
-}
-
-function renderPortfolioTable(rows) {
-  const headers = ["Portfolio", "Vector", "vhat", "k0", "sigma0", "mu0", "b0", "s0", "s0^2"];
-  const html = `
-    <div class="table-scroll">
-      <table>
-        <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.label)}</td>
-              <td class="vector-cell">${formatVector(row.vector)}</td>
-              <td class="vector-cell">${formatVector(row.vhat)}</td>
-              <td>${formatNumber(row.k0)}</td>
-              <td>${formatNumber(row.sigma0)}</td>
-              <td>${formatNumber(row.mu0)}</td>
-              <td>${formatNumber(row.b0)}</td>
-              <td>${formatNumber(row.s0)}</td>
-              <td>${formatNumber(row.s02)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>`;
-  el.portfolioTable.innerHTML = html;
 }
 
 function portfolioData(portfolio, label) {
@@ -1309,6 +1473,358 @@ function portfolioData(portfolio, label) {
   };
 }
 
+// Return-based metrics follow the conventions in Trading Strategy Analysis Studio:
+// https://drmagnusholm.github.io/trading-strategy-analysis-pages/
+function returnMoments(values) {
+  const n = values.length;
+  if (!n) return { mean: NaN, variance: NaN, skewness: NaN, kurtosis: NaN };
+  const average = sum(values) / n;
+  let m2 = 0, m3 = 0, m4 = 0;
+  for (const value of values) {
+    const delta = value - average;
+    m2 += delta ** 2;
+    m3 += delta ** 3;
+    m4 += delta ** 4;
+  }
+  if (values.every((value) => Math.abs(value - values[0]) <= 4 * Number.EPSILON * Math.max(Math.abs(value), Math.abs(values[0])))) {
+    m2 = m3 = m4 = 0;
+  }
+  return {
+    mean: average,
+    variance: n > 1 ? m2 / (n - 1) : NaN,
+    skewness: m2 > 0 ? (m3 / n) / (m2 / n) ** 1.5 : NaN,
+    kurtosis: m2 > 0 ? (m4 / n) / (m2 / n) ** 2 : NaN
+  };
+}
+
+function drawdownHistory(logReturns, tpy) {
+  const depths = [];
+  const durations = new Array(logReturns.length).fill(0);
+  let total = 0, peak = 0, peakIndex = 0, underwater = 0, longest = 0;
+  let active = false;
+  for (let i = 0; i < logReturns.length; i += 1) {
+    total += logReturns[i];
+    const tolerance = 32 * Number.EPSILON * Math.max(1, Math.abs(total), Math.abs(peak));
+    if (total >= peak - tolerance) {
+      if (active) {
+        // Include the recovery observation and weight each episode by its duration.
+        const ticks = i + 1 - peakIndex;
+        durations.fill(ticks / tpy, peakIndex, i + 1);
+        longest = Math.max(longest, ticks);
+      }
+      peak = Math.max(peak, total);
+      peakIndex = i + 1;
+      active = false;
+      depths.push(0);
+    } else {
+      active = true;
+      underwater += 1;
+      depths.push(Math.expm1(total - peak));
+    }
+  }
+  if (active) {
+    const ticks = logReturns.length - peakIndex;
+    durations.fill(ticks / tpy, peakIndex);
+    longest = Math.max(longest, ticks);
+  }
+  return { depths, durations, underwater, longest: longest / tpy, ongoing: active };
+}
+
+function strategyMetrics(logReturns, tpy, timestamps = null) {
+  const n = logReturns.length;
+  const invalidTick = logReturns.findIndex((value) => !Number.isFinite(value));
+  const empty = { values: {}, depths: [], durations: [], valid: false };
+  if (invalidTick >= 0) return { ...empty, reason: `Undefined return / non-positive wealth at tick ${invalidTick + 1}.` };
+  if (n < 2 || !Number.isFinite(tpy) || tpy <= 0) return { ...empty, reason: "At least two returns and a positive annualization frequency are required." };
+
+  const moments = returnMoments(logReturns);
+  const mu = moments.mean * tpy;
+  const sigma2 = moments.variance * tpy;
+  const sigma = Math.sqrt(sigma2);
+  const drift = mu + sigma2 / 2;
+  const ratio = (a, b) => Number.isFinite(a) && Number.isFinite(b) && b !== 0 ? a / b : NaN;
+  const sharpe = ratio(drift, sigma);
+  const lambda = ratio(drift, sigma2);
+  const history = drawdownHistory(logReturns, tpy);
+  const mdd = history.depths.reduce((lowest, depth) => Math.min(lowest, depth), 0);
+  const simple = logReturns.map(Math.expm1);
+  if (!simple.every(Number.isFinite)) return { ...empty, reason: "Returns exceed the supported numerical range." };
+  const simpleMoments = returnMoments(simple);
+  let losses = 0, gains = 0, downsideSquared = 0, positive = 0;
+  for (const value of simple) {
+    if (value < 0) { losses -= value; downsideSquared += value * value; }
+    if (value > 0) { gains += value; positive += 1; }
+  }
+  const downsideDeviation = Math.sqrt(tpy * downsideSquared / n);
+  simple.sort((a, b) => a - b);
+  const tailMass = n * 0.05;
+  const whole = Math.floor(tailMass);
+  let tailSum = sum(simple.slice(0, whole));
+  if (tailMass > whole) tailSum += (tailMass - whole) * simple[whole];
+  const values = {
+    tpy, ticks: n, elapsed: n / tpy, rate: 0,
+    cagr: Math.expm1(mu), cagrExcess: Math.expm1(mu), itd: Math.expm1(sum(logReturns)),
+    muGross: mu, mu, sigma, sharpe, lambda, k: ratio(1, lambda),
+    R: ratio(sigma2, 2 * mu), A: ratio(2 * mu, sigma2),
+    tau: ratio(sigma2, mu * mu), tauMin: ratio(1, sharpe * sharpe),
+    sharpeSimple: ratio(simpleMoments.mean * Math.sqrt(tpy), Math.sqrt(simpleMoments.variance)),
+    sortino: ratio(tpy * simpleMoments.mean, downsideDeviation),
+    calmar: mdd < 0 ? Math.expm1(mu) / Math.abs(mdd) : NaN,
+    omega: ratio(gains, losses), mdd, currentDrawdown: history.depths.at(-1),
+    maxDrawdownDuration: history.longest, timeUnderwater: history.underwater / n,
+    ulcerIndex: Math.sqrt(sum(history.depths.map((depth) => depth * depth)) / n),
+    downsideDeviation, positivePeriods: positive / n,
+    bestPeriod: simple.at(-1), worstPeriod: simple[0],
+    skewness: moments.skewness, kurtosis: moments.kurtosis,
+    returnVarianceCorrelation: moments.kurtosis > 1 ? moments.skewness / Math.sqrt(moments.kurtosis - 1) : NaN,
+    historicalVar95: -simple[Math.max(0, Math.ceil(tailMass) - 1)],
+    expectedShortfall95: -tailSum / tailMass,
+    mvar: mu > 0 ? -Math.expm1(Math.log(0.05) * sigma2 / (2 * mu)) : NaN
+  };
+  for (const [key, years] of [["varDay", 1 / 365], ["varWeek", 1 / 52], ["varMonth", 1 / 12]]) {
+    values[key] = -Math.expm1(mu * years - 1.6448536269514722 * sigma * Math.sqrt(years));
+  }
+  for (const months of [3, 6]) {
+    const length = Math.max(1, Math.round(tpy * months / 12));
+    const window = n >= length ? logReturns.slice(-length) : [];
+    values[`rollingReturn${months}`] = window.length ? Math.expm1(sum(window)) : NaN;
+    values[`rollingStd${months}`] = window.length > 1 ? Math.sqrt(returnMoments(window).variance * tpy) : NaN;
+  }
+  const monthly = new Map();
+  if (timestamps?.length === n && timestamps.every((time) => Number.isFinite(time) && Number.isFinite(new Date(time).getTime()))) {
+    timestamps.forEach((time, i) => {
+      const month = new Date(time).toISOString().slice(0, 7);
+      monthly.set(month, (monthly.get(month) || 0) + logReturns[i]);
+    });
+  }
+  const months = [...monthly.values()];
+  values.positiveMonths = months.length ? months.filter((value) => value > 0).length / months.length : NaN;
+  values.bestMonth = months.length ? Math.expm1(Math.max(...months)) : NaN;
+  values.worstMonth = months.length ? Math.expm1(Math.min(...months)) : NaN;
+  return {
+    values, valid: true, ongoing: history.ongoing,
+    depths: history.depths.sort((a, b) => b - a),
+    durations: history.durations.sort((a, b) => a - b)
+  };
+}
+
+function strategyComparisonEntries() {
+  const analyze = (entry) => ({ ...entry, analysis: strategyMetrics(entry.returns, state.tpy, state.timestamps) });
+  if (strategyAnalysisCache.dataset !== state.bdata) {
+    strategyAnalysisCache.dataset = state.bdata;
+    strategyAnalysisCache.entries = [
+      { id: "v1", label: `v1 (${state.asset1})`, weights: state.v1, returns: state.lrs[0], color: COLORS.asset1 },
+      { id: "v2", label: `v2 (${state.asset2})`, weights: state.v2, returns: state.lrs[1], color: COLORS.asset2 },
+      { id: "v1perp", label: "v1 | 2", weights: state.v1perp, color: COLORS.v1perp },
+      { id: "v2perp", label: "v2 | 1", weights: state.v2perp, color: COLORS.v2perp },
+      { id: "wstar", label: "w*", weights: state.wstar, returns: state.psr, color: COLORS.wstar }
+    ].map((entry) => analyze({ ...entry, returns: entry.returns || portfolioLogReturns(state.lrs, entry.weights) }));
+  }
+  return [...strategyAnalysisCache.entries, analyze({
+    id: "portfolio", label: "Portfolio", weights: state.vp, returns: state.plr, color: COLORS.portfolio
+  })];
+}
+
+function strategyMetricRows() {
+  return [
+    ["Portfolio weights & Kelly geometry · covariance model"],
+    ["geometry_vector", "Weights (w1, w2)", "vector", "Asset weights of the portfolio shown in the geometry plot."],
+    ["geometry_vhat", "vhat · unit-Kelly weights", "vector", "Portfolio weights divided by the geometry Kelly factor k0."],
+    ["geometry_b0", "b0 · geometry arithmetic drift", "percent", "Covariance of the portfolio with full Kelly (w*)."],
+    ["geometry_s02", "s0 squared · geometry", "number", "Square of the covariance-model Sharpe ratio."],
+    ["Sample & performance"],
+    ["tpy", "Ticks per year", "integer", "Frequency used to annualize each series."],
+    ["ticks", "Observations", "integer", "Number of periodic returns."],
+    ["elapsed", "Elapsed time (years)", "number", "Observations divided by ticks per year."],
+    ["cagr", "Return (annualized / CAGR)", "percent", "exp(annual mean log return) - 1."],
+    ["cagrExcess", "CAGR0 · excess growth", "percent", "CAGR relative to cash. Cash earns 0% in this app."],
+    ["itd", "Inception to date", "percent", "Compounded return over all observations."],
+    ["rate", "Interest rate", "percent", "Cash and borrowing rate; currently 0%."],
+    ["Model parameters · realized portfolio returns"],
+    ["muGross", "mu · gross annual log drift", "percent", "Mean log return multiplied by ticks per year."],
+    ["mu", "mu0 · annual log drift", "percent", "Annual log drift relative to cash."],
+    ["sigma", "sigma0 · annual volatility", "percent", "Sample standard deviation of log returns times sqrt(ticks per year)."],
+    ["sharpe", "s0 · model Sharpe ratio", "number", "(mu0 + sigma0 squared / 2) / sigma0."],
+    ["R", "R0 · drawdown risk", "number", "sigma0 squared / (2 mu0). The stationary interpretation requires positive drift."],
+    ["tau", "tau0 · drawdown time (years)", "number", "sigma0 squared / mu0 squared."],
+    ["A", "A0 · risk aversion", "number", "2 mu0 / sigma0 squared."],
+    ["k", "k0 · relative Kelly", "number", "Reciprocal of optimal leverage, estimated from realized returns."],
+    ["lambda", "lambda* · optimal leverage", "number", "mu0 / sigma0 squared + 1/2."],
+    ["tauMin", "tau min · minimum time (years)", "number", "1 / model Sharpe ratio squared."],
+    ["Risk-adjusted performance"],
+    ["sharpeSimple", "Sharpe ratio · simple returns", "number", "sqrt(ticks per year) times mean simple return / sample standard deviation."],
+    ["sortino", "Sortino ratio · 0% target", "number", "Annual mean simple return / annual downside deviation."],
+    ["calmar", "Calmar ratio · full history", "number", "Excess CAGR / absolute maximum drawdown."],
+    ["omega", "Omega ratio · 0% threshold", "number", "Sum of positive simple returns / absolute sum of negative simple returns."],
+    ["Drawdown & downside risk"],
+    ["mdd", "MDD · maximum drawdown", "percent", "Worst compounded decline from an equity high, starting from equity of 1."],
+    ["currentDrawdown", "Current drawdown", "percent", "Final equity decline relative to its running high."],
+    ["maxDrawdownDuration", "Longest drawdown (years)", "number", "Longest peak-to-recovery interval, including recovery, or elapsed time for an open drawdown."],
+    ["timeUnderwater", "Time underwater", "percent", "Share of observation endpoints below the running equity high."],
+    ["ulcerIndex", "Ulcer Index · full history", "percent", "Root mean square of drawdowns over every observation; not annualized."],
+    ["downsideDeviation", "Downside deviation (annualized)", "percent", "sqrt(ticks per year times sum(min(simple return, 0) squared) / all observations)."],
+    ["Return distribution"],
+    ["positivePeriods", "Positive periods", "percent", "Share of observations with positive returns, including flat periods in the denominator."],
+    ["bestPeriod", "Best period return", "percent", "Largest simple return in one observation interval."],
+    ["worstPeriod", "Worst period return", "percent", "Smallest simple return in one observation interval."],
+    ["skewness", "Skewness", "number", "Standardized third population moment of log returns."],
+    ["kurtosis", "Kurtosis", "number", "Standardized fourth population moment of log returns; normal = 3."],
+    ["returnVarianceCorrelation", "Return–variance correlation", "number", "Skewness / sqrt(kurtosis - 1)."],
+    ["Tail risk · positive values indicate losses"],
+    ["historicalVar95", "Historical VaR 95% · 1 period", "percent", "Negative empirical 5th percentile of simple returns, using the inverse empirical CDF."],
+    ["expectedShortfall95", "Expected shortfall 95% · 1 period", "percent", "Negative average of the worst 5% probability mass, with fractional boundary weight."],
+    ["varDay", "VaR 95% · 1 day", "percent", "Gaussian log-return loss quantile over 1/365 year."],
+    ["varWeek", "VaR 95% · 1 week", "percent", "Gaussian log-return loss quantile over 1/52 year."],
+    ["varMonth", "VaR 95% · 1 month", "percent", "Gaussian log-return loss quantile over 1/12 year."],
+    ["mvar", "MVaR 95% · infinite horizon", "percent", "1 - exp(log(0.05) times R0). Requires positive annual log drift."],
+    ["Recent performance"],
+    ["rollingReturn3", "Rolling return · 3 months", "percent", "Compounded return over the last round(ticks per year / 4) observations; requires a full window."],
+    ["rollingStd3", "Rolling volatility · 3 months (ann.)", "percent", "Annualized sample volatility over the complete 3-month observation window."],
+    ["rollingReturn6", "Rolling return · 6 months", "percent", "Compounded return over the last round(ticks per year / 2) observations; requires a full window."],
+    ["rollingStd6", "Rolling volatility · 6 months (ann.)", "percent", "Annualized sample volatility over the complete 6-month observation window."],
+    ["positiveMonths", "Positive months", "percent", "Share of observed UTC calendar months with positive compounded returns; includes partial months."],
+    ["bestMonth", "Best observed month", "percent", "Best compounded UTC calendar-month return; requires dated data."],
+    ["worstMonth", "Worst observed month", "percent", "Worst compounded UTC calendar-month return; requires dated data."]
+  ];
+}
+
+function formatStrategyMetric(value, format) {
+  if (format === "vector") return Array.isArray(value) ? formatVector(value) : "n/a";
+  if (!Number.isFinite(value)) return "n/a";
+  if (format === "integer") return formatInt(value);
+  if (format === "percent") return `${formatFixed(value * 100, 2)}%`;
+  return formatNumber(value, 4);
+}
+
+function renderStrategyAnalysis() {
+  const entries = strategyComparisonEntries();
+  const geometry = entries.map((entry) => portfolioData(entry.weights, entry.label));
+  const attributes = (entry) => `data-portfolio="${entry.id}" class="${entry.id === "portfolio" ? "selected-portfolio" : ""}"`;
+  el.strategyMetrics.innerHTML = `<thead><tr><th scope="col">Metric</th>${entries.map((entry) =>
+    `<th scope="col" ${attributes(entry)} style="--portfolio-color: ${entry.color}"><span class="strategy-heading">${escapeHtml(entry.label)}</span></th>`
+  ).join("")}</tr></thead><tbody>${strategyMetricRows().map(([key, label, format, definition]) => {
+    if (!label) return `<tr class="metric-group"><th colspan="${entries.length + 1}">${escapeHtml(key)}</th></tr>`;
+    return `<tr data-metric="${key}"><th scope="row" title="${escapeHtml(definition)}">${escapeHtml(label)}</th>${entries.map((entry, i) => {
+      const isGeometry = key.startsWith("geometry_");
+      const value = isGeometry ? geometry[i][key.slice(9)] : entry.analysis.values[key];
+      const title = isGeometry ? definition : entry.analysis.reason || definition;
+      return `<td ${attributes(entry)} title="${escapeHtml(title)}">${formatStrategyMetric(value, format)}</td>`;
+    }).join("")}</tr>`;
+  }).join("")}</tbody>`;
+  const invalid = entries.filter((entry) => !entry.analysis.valid);
+  el.strategyMetricsStatus.textContent = invalid.map((entry) => `${entry.label}: ${entry.analysis.reason}`).join(" ");
+  el.strategyMetricsStatus.hidden = !invalid.length;
+  renderStrategyDistribution(el.drawdownDistribution, entries, "depth");
+  renderStrategyDistribution(el.durationDistribution, entries, "duration");
+  renderCorrelationMatrix(entries);
+}
+
+function portfolioCorrelation(a, b, covariance) {
+  const varianceA = quad(a, covariance, a);
+  const varianceB = quad(b, covariance, b);
+  if (!(varianceA > 0) || !(varianceB > 0)) return NaN;
+  const correlation = quad(a, covariance, b) / (Math.sqrt(varianceA) * Math.sqrt(varianceB));
+  return Number.isFinite(correlation) ? clamp(correlation, -1, 1) : NaN;
+}
+
+function renderCorrelationMatrix(entries) {
+  const label = (entry) => entry.id === "v1" ? "v1" : entry.id === "v2" ? "v2" : entry.label;
+  const color = (value) => d3.interpolateRdBu((1 - value) / 2);
+  const header = (entry, scope) => `<th scope="${scope}" title="${escapeHtml(entry.label)}" style="--portfolio-color: ${entry.color}">${escapeHtml(label(entry))}</th>`;
+  el.correlationMatrix.innerHTML = `<div class="table-scroll" tabindex="0" aria-label="Scroll portfolio correlation matrix">
+    <table class="correlation-matrix" aria-label="Correlation matrix of six portfolios">
+      <thead><tr><th scope="col">Portfolio</th>${entries.map((entry) => header(entry, "col")).join("")}</tr></thead>
+      <tbody>${entries.map((row) => `<tr>${header(row, "row")}${entries.map((column) => {
+        const value = portfolioCorrelation(row.weights, column.weights, state.cov);
+        const defined = Number.isFinite(value);
+        const text = defined ? formatFixed(Math.abs(value) < 0.0005 ? 0 : value, 2) : "n/a";
+        const title = `${row.label} / ${column.label}: ${defined ? formatNumber(value, 5) : "undefined for zero portfolio volatility"}`;
+        return `<td data-row="${row.id}" data-column="${column.id}" title="${escapeHtml(title)}" style="background: ${defined ? color(value) : "#eef1f4"}; color: ${defined && Math.abs(value) > 0.65 ? "#ffffff" : COLORS.text}">${text}</td>`;
+      }).join("")}</tr>`).join("")}</tbody>
+    </table></div>
+    <div class="correlation-scale" aria-label="Correlation color scale from negative one to positive one">
+      <div style="background: linear-gradient(to right, ${[-1, -0.5, 0, 0.5, 1].map(color).join(", ")})"></div>
+      <span>−1 · opposite</span><span>0 · uncorrelated</span><span>+1 · together</span>
+    </div>`;
+}
+
+function empiricalConfidenceCurve(sorted) {
+  if (!sorted.length) return [];
+  return Array.from({ length: 201 }, (_, i) => {
+    const confidence = i / 200;
+    return { confidence, value: sorted[Math.max(0, Math.ceil(confidence * sorted.length) - 1)] };
+  });
+}
+
+function durationModelCdf(years, tau) {
+  return tau > 0 && Number.isFinite(tau) ? clamp(erf(Math.sqrt(years / (2 * tau))), 0, 1) : NaN;
+}
+
+function renderStrategyDistribution(host, entries, kind) {
+  const isDepth = kind === "depth";
+  const valid = entries.filter((entry) => entry.analysis.valid);
+  const maxDuration = Math.max(1 / state.tpy, ...valid.map((entry) => entry.analysis.values.maxDrawdownDuration)) * 1.08;
+  const areas = [];
+  const lines = [];
+  const modelOmitted = [];
+  for (const entry of valid) {
+    const { values, depths, durations } = entry.analysis;
+    const empirical = empiricalConfidenceCurve(isDepth ? depths : durations);
+    const selected = entry.id === "portfolio";
+    const strokeWidth = selected ? 2.8 : 1.7;
+    areas.push(Plot.areaY(empirical, {
+      x: "confidence", y: "value", fill: entry.color, fillOpacity: 0.03, curve: "step-after"
+    }));
+    lines.push(Plot.lineY(empirical, {
+      x: "confidence", y: "value", stroke: entry.color, strokeWidth, curve: "step-after", tip: true,
+      title: (d) => `${entry.label} · observed\nConfidence: ${formatFixed(d.confidence * 100, 1)}%\n${isDepth ? "Drawdown" : "Duration"}: ${isDepth ? `${formatFixed(d.value * 100, 2)}%` : `${formatNumber(d.value, 4)} years`}`
+    }));
+    // A stationary drawdown distribution requires positive drift and nonzero variance.
+    if (values.mu > 0 && values.sigma > 0 && Number.isFinite(values.R) && Number.isFinite(values.tau)) {
+      const model = Array.from({ length: 201 }, (_, i) => {
+        if (isDepth) {
+          const confidence = i / 200;
+          return { confidence, value: Math.expm1(Math.log1p(-confidence) * values.R) };
+        }
+        const value = maxDuration * i / 200;
+        return { confidence: durationModelCdf(value, values.tau), value };
+      });
+      lines.push(Plot.lineY(model, {
+        x: "confidence", y: "value", stroke: entry.color, strokeWidth: selected ? 2 : 1.3,
+        strokeDasharray: "6 4", strokeOpacity: 0.8
+      }));
+    } else {
+      modelOmitted.push(entry.label);
+    }
+  }
+  const chart = Plot.plot({
+    width: chartWidth(host), height: 340, marginLeft: 60, marginRight: 20, marginBottom: 48,
+    x: { domain: [0, 1], label: "Confidence (%)", tickFormat: (p) => `${Math.round(p * 100)}%`, grid: true },
+    y: isDepth
+      ? { domain: [-1, 0], label: "Drawdown (%)", tickFormat: (d) => `${Math.round(d * 100)}%`, grid: true }
+      : { domain: [0, maxDuration], label: "Drawdown duration (years)", grid: true },
+    marks: [...areas, Plot.ruleY([0], { stroke: COLORS.grid }), ...lines]
+  });
+  const legend = document.createElement("div");
+  legend.className = "comparison-legend";
+  entries.forEach((entry) => {
+    const item = document.createElement("span");
+    item.className = "legend-chip";
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.background = entry.color;
+    item.append(swatch, document.createTextNode(`${entry.label}${entry.analysis.valid ? "" : " (unavailable)"}`));
+    legend.append(item);
+  });
+  const note = document.createElement("p");
+  note.className = "analysis-note";
+  note.textContent = "Solid: observed · Dashed: model.";
+  if (!isDepth) note.textContent += " Time-weighted episodes include recovery and any open drawdown at its elapsed length. Model tails may extend beyond the observed duration axis.";
+  if (modelOmitted.length) note.textContent += ` Model unavailable (nonpositive drift or zero volatility): ${modelOmitted.join(", ")}.`;
+  if (!valid.length) note.textContent += " No valid return histories to plot.";
+  host.replaceChildren(chart, legend, note);
+}
+
 function renderCumulativeChart() {
   const host = el.cumulativeChart;
   const series = [
@@ -1318,22 +1834,23 @@ function renderCumulativeChart() {
     { name: "Portfolio", values: state.plr, color: COLORS.portfolio }
   ];
   const data = [];
+  const dates = state.timestamps.map((time) => new Date(time));
 
   series.forEach((item) => {
     let total = 0;
     item.values.forEach((value, tick) => {
       if (Number.isFinite(value)) total += value;
       const y = state.chartType === "linear" ? Math.exp(total) : total;
-      data.push({ tick: tick + 1, value: y, name: item.name });
+      data.push({ date: dates[tick], value: y, name: item.name });
     });
   });
 
   const chart = Plot.plot({
     width: chartWidth(host),
-    height: 340,
+    height: Math.min(560, Math.max(420, chartWidth(host))),
     marginLeft: 58,
     marginRight: 18,
-    x: { label: "tick", grid: true },
+    x: { type: "utc", label: "Date (UTC)", grid: true, ticks: Math.max(3, Math.floor(chartWidth(host) / 120)) },
     y: { label: state.chartType === "linear" ? "growth multiple" : "log return", grid: true },
     color: {
       legend: true,
@@ -1342,7 +1859,7 @@ function renderCumulativeChart() {
     },
     marks: [
       Plot.ruleY([state.chartType === "linear" ? 1 : 0], { stroke: "#9aa6b2", strokeDasharray: "4 4" }),
-      Plot.lineY(data, { x: "tick", y: "value", stroke: "name", strokeWidth: 2 })
+      Plot.lineY(data, { x: "date", y: "value", stroke: "name", strokeWidth: 2 })
     ]
   });
 
@@ -1529,13 +2046,17 @@ function kellyCurve(portfolio, label, color) {
 }
 
 function renderKellyJensenPlot() {
+  // Keep the drag target and axes fixed when the debounced charts refresh.
+  if (geometryInteraction.finishDrag) return;
   const host = el.kellyJensenPlot;
+  const restoreFocus = host.contains(document.activeElement);
   const width = chartWidth(host);
   const height = Math.min(560, Math.max(420, width));
   const margin = { top: 18, right: 18, bottom: 44, left: 52 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
   const ctx = geometryContext();
+  const kellyLevelCurve = geometryKellyLevelCurve(ctx);
   const points = [
     [0, 0],
     ctx.v1,
@@ -1543,7 +2064,8 @@ function renderKellyJensenPlot() {
     ctx.wstar,
     ctx.portfolio,
     ctx.v1perp,
-    ctx.v2perp
+    ctx.v2perp,
+    ...kellyLevelCurve
   ];
   const domain = squareDomain(points, 0.35);
   const x = d3.scaleLinear().domain(domain.x).range([margin.left, margin.left + innerWidth]).nice();
@@ -1554,7 +2076,7 @@ function renderKellyJensenPlot() {
   const svg = d3.create("svg")
     .attr("class", "geometry-svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("role", "img")
+    .attr("role", "group")
     .attr("aria-label", "Kelly Jensen geometry plot");
 
   svg.append("defs").append("marker")
@@ -1608,24 +2130,49 @@ function renderKellyJensenPlot() {
     .call((g) => g.selectAll("path").remove())
     .call((g) => g.selectAll("line").attr("stroke", "#ffffff").attr("stroke-opacity", 0.65));
 
+  if (kellyLevelCurve.length) {
+    plot.append("path")
+      .attr("class", "kelly-level-curve")
+      .attr("d", d3.line().x((d) => x(d[0])).y((d) => y(d[1]))
+        .curve(d3.curveLinearClosed)(kellyLevelCurve))
+      .attr("fill", "none")
+      .attr("stroke", COLORS.text)
+      .attr("stroke-width", 2)
+      .attr("stroke-dasharray", "6 4")
+      .append("title")
+      .text("k0 = 1");
+  }
+
   drawVector(plot, x, y, ctx.v1, COLORS.asset1, "v1");
   drawVector(plot, x, y, ctx.v2, COLORS.asset2, "v2");
   drawVector(plot, x, y, ctx.v1perp, COLORS.v1perp, "v1 | 2", true);
   drawVector(plot, x, y, ctx.v2perp, COLORS.v2perp, "v2 | 1", true);
   drawVector(plot, x, y, ctx.wstar, COLORS.wstar, "w*");
 
-  plot.append("circle")
-    .attr("cx", x(ctx.portfolio[0]))
-    .attr("cy", y(ctx.portfolio[1]))
+  const portfolioHandle = plot.append("g")
+    .attr("class", "portfolio-handle")
+    .attr("transform", `translate(${x(ctx.portfolio[0])},${y(ctx.portfolio[1])})`)
+    .attr("tabindex", 0)
+    .attr("role", "button")
+    .attr("aria-label", "Move portfolio point. Drag or use arrow keys; Shift takes larger steps.");
+
+  portfolioHandle.append("circle")
+    .attr("class", "portfolio-hit-target")
+    .attr("r", 16)
+    .attr("fill", "transparent");
+
+  portfolioHandle.append("circle")
+    .attr("class", "portfolio-point")
     .attr("r", 6)
     .attr("fill", COLORS.portfolio)
     .attr("stroke", "#ffffff")
     .attr("stroke-width", 2);
 
-  plot.append("text")
+  portfolioHandle.append("text")
     .attr("class", "vector-label")
-    .attr("x", x(ctx.portfolio[0]) + 8)
-    .attr("y", y(ctx.portfolio[1]) - 8)
+    .attr("x", 8)
+    .attr("y", -8)
+    .attr("pointer-events", "none")
     .text("Portfolio");
 
   svg.append("text")
@@ -1641,7 +2188,126 @@ function renderKellyJensenPlot() {
     .attr("text-anchor", "middle")
     .text(state.plotType === "orthogonal" ? "orthogonal risk coordinate 2" : "asset weight 2");
 
-  host.replaceChildren(svg.node(), geometryLegend());
+  host.replaceChildren(svg.node(), geometryLegend(kellyLevelCurve.length > 0));
+  bindPortfolioDrag(svg, portfolioHandle, x, y, ctx, host);
+  if (restoreFocus) portfolioHandle.node().focus({ preventScroll: true });
+}
+
+function schedulePortfolioRender() {
+  clearTimeout(geometryInteraction.renderTimer);
+  geometryInteraction.renderTimer = setTimeout(renderAll, 400);
+}
+
+function bindPortfolioDrag(svg, handle, x, y, ctx, host) {
+  const overlay = document.createElement("div");
+  overlay.className = "portfolio-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <strong>Portfolio</strong>
+    <dl>
+      <dt>Plot coordinates</dt><dd data-value="coordinates"></dd>
+      <dt>Weights (w1, w2)</dt><dd data-value="weights"></dd>
+      <dt>Kelly factor (k0)</dt><dd data-value="kelly"></dd>
+      <dt>Sharpe ratio (s0)</dt><dd data-value="sharpe"></dd>
+    </dl>`;
+  const values = Object.fromEntries([...overlay.querySelectorAll("[data-value]")]
+    .map((node) => [node.dataset.value, node]));
+  const hint = document.createElement("p");
+  hint.className = "geometry-hint";
+  hint.textContent = "Drag Portfolio to move it, or focus it and use the arrow keys. Hold Shift for larger steps.";
+  host.append(overlay, hint);
+
+  let pointerId = null;
+  let offset = [0, 0];
+  let moved = false;
+  const node = handle.node();
+  const [left, right] = x.range();
+  const [bottom, top] = y.range();
+
+  function showOverlay() {
+    const data = portfolioData(state.vp, "Portfolio");
+    const vector = (point) => `[${point.map((value) => formatNumber(value, 5)).join(", ")}]`;
+    values.coordinates.textContent = vector(ctx.toPoint(state.vp));
+    values.weights.textContent = vector(state.vp);
+    values.kelly.textContent = formatNumber(data.k0, 5);
+    values.sharpe.textContent = formatNumber(data.s0, 5);
+    overlay.hidden = false;
+  }
+
+  function updatePortfolioPoint() {
+    const position = ctx.toPoint(state.vp);
+    handle.attr("transform", `translate(${x(position[0])},${y(position[1])})`);
+    if (!overlay.hidden) showOverlay();
+  }
+  geometryInteraction.updatePortfolio = updatePortfolioPoint;
+
+  function moveTo(px, py) {
+    const point = [x.invert(clamp(px, left, right)), y.invert(clamp(py, top, bottom))];
+    const weights = ctx.toWeights(point);
+    if (!weights.every(Number.isFinite)) return;
+    if (weights.every((value, i) => Math.abs(value - state.vp[i]) < 1e-12)) return;
+    state.vp = weights;
+    state.pCase = "custom";
+    updateKFromPortfolio();
+    syncPortfolioControls();
+    updatePortfolioPoint();
+    showOverlay();
+    moved = true;
+    schedulePortfolioRender();
+  }
+
+  function movePointer(event) {
+    if (event.pointerId !== pointerId) return;
+    const [px, py] = d3.pointer(event, svg.node());
+    moveTo(px + offset[0], py + offset[1]);
+  }
+
+  function finishDrag() {
+    if (pointerId === null) return;
+    const previousPointerId = pointerId;
+    pointerId = null;
+    geometryInteraction.finishDrag = null;
+    handle.classed("is-dragging", false);
+    if (node.hasPointerCapture(previousPointerId)) node.releasePointerCapture(previousPointerId);
+    overlay.hidden = true;
+    // Refit the geometry after release, even if a pause already refreshed the other charts.
+    if (moved) schedulePortfolioRender();
+  }
+
+  handle.on("pointerdown", (event) => {
+    if (pointerId !== null || !event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    const [px, py] = d3.pointer(event, svg.node());
+    const position = ctx.toPoint(state.vp);
+    offset = [x(position[0]) - px, y(position[1]) - py];
+    pointerId = event.pointerId;
+    moved = false;
+    node.setPointerCapture(pointerId);
+    geometryInteraction.finishDrag = finishDrag;
+    handle.classed("is-dragging", true);
+    showOverlay();
+  });
+  handle.on("pointermove", movePointer);
+  handle.on("pointerup", (event) => {
+    if (event.pointerId !== pointerId) return;
+    movePointer(event);
+    finishDrag();
+  });
+  handle.on("pointercancel lostpointercapture", (event) => {
+    if (event.pointerId === pointerId) finishDrag();
+  });
+  handle.on("focus", showOverlay);
+  handle.on("blur", () => { if (pointerId === null) overlay.hidden = true; });
+  handle.on("keydown", (event) => {
+    if (pointerId !== null) return;
+    const directions = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    const direction = directions[event.key];
+    if (!direction) return;
+    event.preventDefault();
+    const position = ctx.toPoint(state.vp);
+    const step = event.shiftKey ? 20 : 2;
+    moveTo(x(position[0]) + step * direction[0], y(position[1]) + step * direction[1]);
+  });
 }
 
 function geometryContext() {
@@ -1652,6 +2318,11 @@ function geometryContext() {
     const transform = (w) => addVec(scaleVec(v1, w[0]), scaleVec(v2, w[1]));
     return {
       metric: [[1, 0], [0, 1]],
+      toPoint: transform,
+      toWeights: (point) => {
+        const w2 = point[1] / v2[1];
+        return [(point[0] - v2[0] * w2) / v1[0], w2];
+      },
       v1,
       v2,
       wstar: transform(state.wstar),
@@ -1663,6 +2334,8 @@ function geometryContext() {
 
   return {
     metric: state.cov,
+    toPoint: (weights) => [...weights],
+    toWeights: (point) => [...point],
     v1: state.v1,
     v2: state.v2,
     wstar: state.wstar,
@@ -1670,6 +2343,25 @@ function geometryContext() {
     v1perp: state.v1perp,
     v2perp: state.v2perp
   };
+}
+
+function geometryKellyLevelCurve(ctx) {
+  // k0 = 1 means p' M p = p' M w*, or (p - w*/2)' M (p - w*/2) = w*' M w*/4.
+  const [[a, b], [, c]] = ctx.metric;
+  const radius = Math.sqrt(quad(ctx.wstar, ctx.metric, ctx.wstar)) / 2;
+  const u11 = Math.sqrt(a);
+  const u12 = b / u11;
+  const u22 = Math.sqrt(c - u12 * u12);
+  if (![radius, u11, u22].every((value) => Number.isFinite(value) && value > 0)) return [];
+
+  const center = scaleVec(ctx.wstar, 0.5);
+  return Array.from({ length: 256 }, (_, i) => {
+    const angle = 2 * Math.PI * i / 256;
+    // Map the circle back through the metric's Cholesky factor.
+    const dy = radius * Math.sin(angle) / u22;
+    const dx = (radius * Math.cos(angle) - u12 * dy) / u11;
+    return addVec(center, [dx, dy]);
+  });
 }
 
 function geometryCells(ctx, xDomain, yDomain, steps) {
@@ -1723,18 +2415,26 @@ function drawVector(plot, x, y, end, color, label, dashed = false) {
     .text(label);
 }
 
-function geometryLegend() {
+function geometryLegend(showKellyLevelCurve) {
   const wrap = document.createElement("div");
   [
     ["positive growth", "#6ea971"],
     ["negative growth", "#d4777d"],
-    ["selected portfolio", COLORS.portfolio]
-  ].forEach(([label, color]) => {
+    ["selected portfolio", COLORS.portfolio],
+    ...(showKellyLevelCurve ? [["k0 = 1", COLORS.text, true]] : [])
+  ].forEach(([label, color, dashed]) => {
     const item = document.createElement("span");
     item.className = "legend-chip";
     const swatch = document.createElement("span");
     swatch.className = "legend-swatch";
     swatch.style.background = color;
+    if (dashed) {
+      swatch.style.background = "none";
+      swatch.style.width = "20px";
+      swatch.style.height = "0";
+      swatch.style.borderRadius = "0";
+      swatch.style.borderTop = `2px dashed ${color}`;
+    }
     item.append(swatch, document.createTextNode(label));
     wrap.append(item);
   });
